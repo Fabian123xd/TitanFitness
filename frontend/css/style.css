@@ -1,0 +1,156 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #f4f6f9;
+    font-family: Arial, sans-serif;
+    color: #252525;
+}
+
+/* SIDEBAR */
+
+.sidebar {
+    width: 250px;
+    min-height: 100vh;
+    background: #111827;
+    padding: 25px 15px;
+    position: fixed;
+}
+
+.logo {
+    color: white;
+    font-size: 25px;
+    font-weight: bold;
+    padding: 0 15px 30px;
+}
+
+.logo i {
+    margin-right: 10px;
+}
+
+.sidebar nav a {
+    display: block;
+    color: #cbd5e1;
+    text-decoration: none;
+    padding: 14px 16px;
+    margin-bottom: 7px;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+.sidebar nav a i {
+    width: 28px;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active {
+    background: #2563eb;
+    color: white;
+}
+
+/* CONTENIDO */
+
+.main-content {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    padding: 30px;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.topbar h2 {
+    font-weight: bold;
+    margin-bottom: 3px;
+}
+
+.topbar p {
+    color: #6b7280;
+    margin: 0;
+}
+
+.admin {
+    background: white;
+    padding: 10px 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.admin i {
+    font-size: 22px;
+    margin-right: 7px;
+}
+
+/* TARJETAS */
+
+.card-dashboard {
+    background: white;
+    border-radius: 12px;
+    padding: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+}
+
+.card-dashboard p {
+    color: #6b7280;
+    margin-bottom: 7px;
+}
+
+.card-dashboard h3 {
+    font-size: 30px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.card-dashboard > i {
+    font-size: 30px;
+    color: #2563eb;
+}
+
+/* PANEL */
+
+.panel {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+}
+
+.panel h4 {
+    font-weight: bold;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+
+    .sidebar {
+        width: 75px;
+    }
+
+    .sidebar span {
+        display: none;
+    }
+
+    .sidebar nav a {
+        text-align: center;
+    }
+
+    .sidebar nav a i {
+        width: auto;
+    }
+
+    .main-content {
+        margin-left: 75px;
+        width: calc(100% - 75px);
+        padding: 20px;
+    }
+}
