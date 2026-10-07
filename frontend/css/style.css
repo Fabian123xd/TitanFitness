@@ -1,139 +1,522 @@
+/* =========================================
+   TITAN FITNESS CLUB - ESTILO GENERAL
+========================================= */
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-body {
-    background: #f4f6f9;
-    font-family: Arial, sans-serif;
-    color: #252525;
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --sidebar: #0f172a;
+    --sidebar-light: #1e293b;
+    --background: #f1f5f9;
+    --card: #ffffff;
+    --text: #0f172a;
+    --text-light: #64748b;
+    --border: #e2e8f0;
 }
 
-/* SIDEBAR */
+body {
+    background: var(--background);
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: var(--text);
+}
+
+
+/* =========================================
+   SIDEBAR
+========================================= */
 
 .sidebar {
-    width: 250px;
+    width: 260px;
     min-height: 100vh;
-    background: #111827;
-    padding: 25px 15px;
+    background: linear-gradient(
+        180deg,
+        #0f172a 0%,
+        #111827 100%
+    );
+
+    padding: 28px 16px;
     position: fixed;
+    left: 0;
+    top: 0;
+
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.08);
+    z-index: 100;
 }
+
+
+/* LOGO */
 
 .logo {
     color: white;
-    font-size: 25px;
-    font-weight: bold;
-    padding: 0 15px 30px;
+    font-size: 23px;
+    font-weight: 700;
+
+    padding: 0 14px 30px;
+
+    display: flex;
+    align-items: center;
+
+    letter-spacing: -0.5px;
 }
 
 .logo i {
-    margin-right: 10px;
+    margin-right: 12px;
+    font-size: 27px;
+    color: #3b82f6;
 }
 
+
+/* LINKS */
+
 .sidebar nav a {
-    display: block;
-    color: #cbd5e1;
+    display: flex;
+    align-items: center;
+
+    color: #94a3b8;
+
     text-decoration: none;
-    padding: 14px 16px;
+
+    padding: 13px 15px;
+
     margin-bottom: 7px;
-    border-radius: 8px;
-    transition: 0.2s;
+
+    border-radius: 9px;
+
+    font-size: 15px;
+    font-weight: 500;
+
+    transition: all 0.25s ease;
 }
 
 .sidebar nav a i {
-    width: 28px;
+    width: 30px;
+    font-size: 17px;
 }
 
-.sidebar nav a:hover,
-.sidebar nav a.active {
-    background: #2563eb;
+
+/* HOVER */
+
+.sidebar nav a:hover {
+    background: rgba(37, 99, 235, 0.15);
     color: white;
+
+    transform: translateX(3px);
 }
 
-/* CONTENIDO */
+
+/* ACTIVO */
+
+.sidebar nav a.active {
+    background: linear-gradient(
+        135deg,
+        #2563eb,
+        #3b82f6
+    );
+
+    color: white;
+
+    box-shadow: 0 5px 15px rgba(37, 99, 235, 0.25);
+}
+
+
+/* =========================================
+   CONTENIDO PRINCIPAL
+========================================= */
 
 .main-content {
-    margin-left: 250px;
-    width: calc(100% - 250px);
-    padding: 30px;
+    margin-left: 260px;
+
+    width: calc(100% - 260px);
+
+    min-height: 100vh;
+
+    padding: 32px 38px;
 }
+
+
+/* =========================================
+   TOPBAR
+========================================= */
 
 .topbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    margin-bottom: 30px;
 }
 
 .topbar h2 {
-    font-weight: bold;
-    margin-bottom: 3px;
+    font-size: 28px;
+    font-weight: 700;
+
+    margin-bottom: 4px;
+
+    color: #0f172a;
 }
 
 .topbar p {
-    color: #6b7280;
+    color: var(--text-light);
+
     margin: 0;
+
+    font-size: 14px;
 }
+
+
+/* ADMIN */
 
 .admin {
     background: white;
-    padding: 10px 15px;
+
+    padding: 10px 16px;
+
     border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+
+    border: 1px solid var(--border);
+
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+
+    display: flex;
+    align-items: center;
+
+    font-weight: 500;
 }
 
 .admin i {
     font-size: 22px;
-    margin-right: 7px;
-}
 
-/* TARJETAS */
+    margin-right: 9px;
 
-.card-dashboard {
-    background: white;
-    border-radius: 12px;
-    padding: 22px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.06);
-}
-
-.card-dashboard p {
-    color: #6b7280;
-    margin-bottom: 7px;
-}
-
-.card-dashboard h3 {
-    font-size: 30px;
-    font-weight: bold;
-    margin: 0;
-}
-
-.card-dashboard > i {
-    font-size: 30px;
     color: #2563eb;
 }
 
-/* PANEL */
+
+/* =========================================
+   TARJETAS DASHBOARD
+========================================= */
+
+.card-dashboard {
+    background: white;
+
+    border-radius: 14px;
+
+    padding: 23px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    border: 1px solid #e8edf4;
+
+    box-shadow: 0 5px 18px rgba(15, 23, 42, 0.05);
+
+    transition: all 0.25s ease;
+}
+
+
+/* EFECTO TARJETAS */
+
+.card-dashboard:hover {
+    transform: translateY(-4px);
+
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.09);
+}
+
+
+.card-dashboard p {
+    color: #64748b;
+
+    margin-bottom: 7px;
+
+    font-size: 14px;
+
+    font-weight: 500;
+}
+
+
+.card-dashboard h3 {
+    font-size: 31px;
+
+    font-weight: 700;
+
+    margin: 0;
+
+    color: #0f172a;
+}
+
+
+/* ICONOS */
+
+.card-dashboard > i {
+    font-size: 28px;
+
+    color: #2563eb;
+
+    background: #eff6ff;
+
+    width: 55px;
+
+    height: 55px;
+
+    border-radius: 12px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+}
+
+
+/* =========================================
+   PANEL
+========================================= */
 
 .panel {
     background: white;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+
+    padding: 26px;
+
+    border-radius: 14px;
+
+    border: 1px solid #e8edf4;
+
+    box-shadow: 0 5px 18px rgba(15, 23, 42, 0.05);
 }
+
 
 .panel h4 {
-    font-weight: bold;
+    font-weight: 700;
+
+    font-size: 19px;
+
+    color: #0f172a;
 }
 
-/* RESPONSIVE */
+
+/* =========================================
+   TABLAS
+========================================= */
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background: #f8fafc;
+
+    color: #475569;
+
+    font-size: 13px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.4px;
+
+    font-weight: 600;
+
+    border-bottom: 1px solid #e2e8f0;
+
+    padding: 14px;
+}
+
+.table tbody td {
+    padding: 14px;
+
+    vertical-align: middle;
+
+    border-color: #edf2f7;
+
+    font-size: 14px;
+}
+
+.table tbody tr {
+    transition: background 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background: #f8fafc;
+}
+
+
+/* =========================================
+   BOTONES
+========================================= */
+
+.btn {
+    border-radius: 8px;
+
+    font-weight: 500;
+
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: #2563eb;
+
+    border-color: #2563eb;
+
+    box-shadow: 0 3px 8px rgba(37, 99, 235, 0.18);
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+
+    border-color: #1d4ed8;
+
+    transform: translateY(-1px);
+}
+
+.btn-warning {
+    background: #f59e0b;
+
+    border-color: #f59e0b;
+
+    color: white;
+}
+
+.btn-danger {
+    background: #ef4444;
+
+    border-color: #ef4444;
+}
+
+
+/* =========================================
+   BADGES
+========================================= */
+
+.badge {
+    padding: 6px 10px;
+
+    border-radius: 20px;
+
+    font-weight: 500;
+}
+
+
+/* =========================================
+   MODALES
+========================================= */
+
+.modal-content {
+    border: none;
+
+    border-radius: 16px;
+
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+}
+
+.modal-header {
+    border-bottom: 1px solid #e2e8f0;
+
+    padding: 20px 24px;
+}
+
+.modal-title {
+    font-weight: 700;
+
+    color: #0f172a;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-footer {
+    border-top: 1px solid #e2e8f0;
+
+    padding: 16px 24px;
+}
+
+
+/* =========================================
+   FORMULARIOS
+========================================= */
+
+.form-label {
+    font-size: 14px;
+
+    font-weight: 600;
+
+    color: #334155;
+}
+
+.form-control,
+.form-select {
+    border-radius: 8px;
+
+    border: 1px solid #cbd5e1;
+
+    padding: 10px 12px;
+
+    transition: 0.2s;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #2563eb;
+
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+
+/* =========================================
+   SCROLLBAR
+========================================= */
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
 
 @media (max-width: 768px) {
 
     .sidebar {
-        width: 75px;
+        width: 78px;
+
+        padding: 25px 10px;
+    }
+
+    .logo {
+        justify-content: center;
+
+        padding: 0 0 30px;
+    }
+
+    .logo span {
+        display: none;
+    }
+
+    .logo i {
+        margin: 0;
     }
 
     .sidebar span {
@@ -141,16 +524,215 @@ body {
     }
 
     .sidebar nav a {
-        text-align: center;
+        justify-content: center;
+
+        padding: 14px;
     }
 
     .sidebar nav a i {
         width: auto;
+
+        font-size: 19px;
+    }
+
+    .sidebar nav a:hover {
+        transform: none;
     }
 
     .main-content {
-        margin-left: 75px;
-        width: calc(100% - 75px);
-        padding: 20px;
+        margin-left: 78px;
+
+        width: calc(100% - 78px);
+
+        padding: 22px;
     }
+
+    .topbar {
+        align-items: flex-start;
+
+        gap: 15px;
+    }
+
+    .topbar h2 {
+        font-size: 23px;
+    }
+
+    .admin span {
+        display: none;
+    }
+
+    .admin i {
+        margin: 0;
+    }
+        }
+        /* =========================================
+   ACCESOS RÁPIDOS
+========================================= */
+
+.quick-action {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px;
+
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    background: #ffffff;
+
+    transition: all 0.25s ease;
+}
+
+.quick-action:hover {
+    border-color: #2563eb;
+
+    transform: translateY(-3px);
+
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.10);
+}
+
+.quick-icon {
+    width: 45px;
+    height: 45px;
+
+    min-width: 45px;
+
+    border-radius: 10px;
+
+    background: #eff6ff;
+
+    color: #2563eb;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 18px;
+}
+
+.quick-action h6 {
+    margin: 0 0 3px;
+
+    color: #0f172a;
+
+    font-weight: 600;
+}
+
+.quick-action small {
+    color: #64748b;
+}
+/* =========================================
+   BUSCADOR DE CLIENTES
+========================================= */
+
+.client-search {
+    width: 280px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+
+    background: #f8fafc;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+
+    padding: 0 13px;
+
+    transition: all 0.2s ease;
+}
+
+.client-search:focus-within {
+    background: white;
+    border-color: #2563eb;
+
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.client-search i {
+    color: #94a3b8;
+    margin-right: 10px;
+}
+
+.client-search input {
+    width: 100%;
+
+    border: none;
+    outline: none;
+
+    background: transparent;
+
+    color: #0f172a;
+
+    font-size: 14px;
+}
+
+.client-search input::placeholder {
+    color: #94a3b8;
+}
+
+
+/* ACCIONES DE TABLA */
+
+.table .btn-sm {
+    width: 34px;
+    height: 34px;
+
+    padding: 0;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0 2px;
+
+    border-radius: 7px;
+}
+/* =========================================
+   ESTADO MEMBRESÍA
+========================================= */
+
+.membership-status {
+    background: #f8fafc;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+
+    padding: 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.membership-status strong {
+    font-size: 14px;
+    color: #0f172a;
+}
+
+.membership-status p {
+    margin-top: 3px;
+
+    color: #64748b;
+
+    font-size: 13px;
+}
+
+.membership-status .form-check-input {
+    width: 44px;
+    height: 22px;
+
+    cursor: pointer;
+}
+
+.input-group-text {
+    background: #f8fafc;
+
+    border-color: #cbd5e1;
+
+    color: #64748b;
+
+    font-weight: 500;
 }

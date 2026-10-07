@@ -50,4 +50,17 @@ public class ClienteService {
 
         clienteRepository.deleteById(id);
     }
+    public Cliente actualizar(Long id, Cliente datos) {
+
+    Cliente cliente = clienteRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+
+    cliente.setNombres(datos.getNombres());
+    cliente.setApellidos(datos.getApellidos());
+    cliente.setDni(datos.getDni());
+    cliente.setTelefono(datos.getTelefono());
+    cliente.setCorreo(datos.getCorreo());
+
+    return clienteRepository.save(cliente);
+}
 }

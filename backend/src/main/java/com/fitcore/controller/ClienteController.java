@@ -45,6 +45,17 @@ public class ClienteController {
                 .status(HttpStatus.CREATED)
                 .body(nuevoCliente);
     }
+    // Actualizar cliente
+@PutMapping("/{id}")
+public ResponseEntity<Cliente> actualizar(
+        @PathVariable Long id,
+        @Valid @RequestBody Cliente cliente) {
+
+    Cliente clienteActualizado =
+            clienteService.actualizar(id, cliente);
+
+    return ResponseEntity.ok(clienteActualizado);
+}
 
     // Eliminar cliente
     @DeleteMapping("/{id}")
