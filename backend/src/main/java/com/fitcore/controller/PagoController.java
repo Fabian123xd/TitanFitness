@@ -51,19 +51,21 @@ public class PagoController {
 
     // POST - Registrar pago
     @PostMapping
-    public ResponseEntity<Pago> registrar(
-            @RequestParam Long inscripcionId,
-            @RequestParam BigDecimal monto,
-            @RequestParam String metodoPago) {
+public ResponseEntity<Pago> registrar(
+        @RequestParam Long inscripcionId,
+        @RequestParam BigDecimal monto,
+        @RequestParam String metodoPago,
+        @RequestParam(required = false) BigDecimal montoRecibido) {
 
-        Pago pago = pagoService.registrar(
-                inscripcionId,
-                monto,
-                metodoPago
-        );
+    Pago pago = pagoService.registrar(
+            inscripcionId,
+            monto,
+            metodoPago,
+            montoRecibido
+    );
 
-        return ResponseEntity.ok(pago);
-    }
+    return ResponseEntity.ok(pago);
+}
 
     // DELETE - Eliminar pago
     @DeleteMapping("/{id}")

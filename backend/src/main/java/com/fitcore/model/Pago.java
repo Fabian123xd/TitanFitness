@@ -23,6 +23,11 @@ public class Pago {
     @Positive(message = "El monto debe ser mayor a 0")
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal monto;
+    @Column(name = "monto_recibido", precision = 10, scale = 2)
+private BigDecimal montoRecibido;
+
+@Column(name = "vuelto", precision = 10, scale = 2)
+private BigDecimal vuelto;
 
     @Column(name = "fecha_pago", nullable = false)
     private LocalDateTime fechaPago;
@@ -94,4 +99,19 @@ public class Pago {
     public void setEstado(String estado) {
         this.estado = estado;
     }
+    public BigDecimal getMontoRecibido() {
+    return montoRecibido;
+}
+
+public void setMontoRecibido(BigDecimal montoRecibido) {
+    this.montoRecibido = montoRecibido;
+}
+
+public BigDecimal getVuelto() {
+    return vuelto;
+}
+
+public void setVuelto(BigDecimal vuelto) {
+    this.vuelto = vuelto;
+}
 }

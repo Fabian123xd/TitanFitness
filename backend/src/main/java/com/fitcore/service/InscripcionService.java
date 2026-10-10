@@ -54,6 +54,28 @@ public class InscripcionService {
         Membresia membresia = membresiaRepository.findById(membresiaId)
                 .orElseThrow(() ->
                         new RuntimeException("Membresía no encontrada"));
+                        // Evitar inscripciones duplicadas
+boolean tieneInscripcionVigente = inscripcionRepository
+        .findByClienteId(clienteId)
+        .stream()
+        .anyMatch(inscripcion -> {
+
+            // No permitir otra inscripción pendiente
+            if ("PENDIENTE".equals(inscripcion.getEstado())) {
+                return true;
+            }
+
+            // No permitir otra inscripción activa y vigente
+            return "ACTIVA".equals(inscripcion.getEstado())
+                    && !inscripcion.getFechaFin()
+                            .isBefore(LocalDate.now());
+        });
+
+if (tieneInscripcionVigente) {
+    throw new IllegalStateException(
+            "El cliente ya tiene una inscripción activa o pendiente"
+    );
+}
 
         if (!membresia.getActivo()) {
             throw new RuntimeException("La membresía seleccionada no está activa");
@@ -71,7 +93,7 @@ public class InscripcionService {
         inscripcion.setMembresia(membresia);
         inscripcion.setFechaInicio(fechaInicio);
         inscripcion.setFechaFin(fechaFin);
-        inscripcion.setEstado("ACTIVA");
+        inscripcion.setEstado("PENDIENTE");
 
         return inscripcionRepository.save(inscripcion);
     }
