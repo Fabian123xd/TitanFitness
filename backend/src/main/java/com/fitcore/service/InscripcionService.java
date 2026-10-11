@@ -97,6 +97,26 @@ if (tieneInscripcionVigente) {
 
         return inscripcionRepository.save(inscripcion);
     }
+    // Listar membresías próximas a vencer (7 días)
+public List<Inscripcion> listarProximasAVencer() {
+
+    LocalDate hoy = LocalDate.now();
+    LocalDate limite = hoy.plusDays(7);
+
+    return inscripcionRepository.findAll()
+            .stream()
+            .filter(inscripcion ->
+                    "ACTIVA".equalsIgnoreCase(inscripcion.getEstado())
+            )
+            .filter(inscripcion ->
+                    inscripcion.getFechaFin() != null
+            )
+            .filter(inscripcion ->
+                    !inscripcion.getFechaFin().isBefore(hoy)
+                    && !inscripcion.getFechaFin().isAfter(limite)
+            )
+            .toList();
+}
 
     // Eliminar inscripción
     public void eliminar(Long id) {

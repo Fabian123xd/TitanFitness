@@ -52,21 +52,29 @@ public class AsistenciaService {
                 .orElseThrow(() ->
                         new RuntimeException("Inscripción no encontrada"));
 
-        // Validar que la inscripción esté activa
-        if (!"ACTIVA".equalsIgnoreCase(inscripcion.getEstado())) {
-            throw new RuntimeException(
-                    "Ingreso denegado: la inscripción no está activa");
-        }
+       // Validar fecha de inicio
+if (LocalDate.now().isBefore(inscripcion.getFechaInicio())) {
+    throw new IllegalStateException(
+            "Ingreso denegado: la membresía todavía no inicia");
+}
 
-        // Validar fecha de vencimiento
-        if (LocalDate.now().isAfter(inscripcion.getFechaFin())) {
+// Validar fecha de vencimiento
+if (LocalDate.now().isAfter(inscripcion.getFechaFin())) {
 
-            inscripcion.setEstado("VENCIDA");
-            inscripcionRepository.save(inscripcion);
+    if (!"VENCIDA".equalsIgnoreCase(inscripcion.getEstado())) {
+        inscripcion.setEstado("VENCIDA");
+        inscripcionRepository.save(inscripcion);
+    }
 
-            throw new RuntimeException(
-                    "Ingreso denegado: la membresía está vencida");
-        }
+    throw new IllegalStateException(
+            "Ingreso denegado: la membresía está vencida");
+}
+
+// Validar que la inscripción esté activa
+if (!"ACTIVA".equalsIgnoreCase(inscripcion.getEstado())) {
+    throw new IllegalStateException(
+            "Ingreso denegado: la inscripción no está activa");
+}
 
         Asistencia asistencia = new Asistencia();
 

@@ -4,7 +4,7 @@ import com.fitcore.model.Inscripcion;
 import com.fitcore.service.InscripcionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.GetMapping;
 import java.util.List;
 
 @RestController
@@ -60,4 +60,9 @@ public class InscripcionController {
 
         return ResponseEntity.noContent().build();
     }
+    // Obtener inscripciones próximas a vencer
+@GetMapping("/proximas-vencer")
+public List<Inscripcion> listarProximasAVencer() {
+    return inscripcionService.listarProximasAVencer();
+}
 }

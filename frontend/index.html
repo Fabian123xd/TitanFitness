@@ -350,7 +350,52 @@
             </div>
 
         </div>
+<!-- ============================= -->
+<!-- ALERTAS DE MEMBRESÍAS -->
+<!-- ============================= -->
 
+<div class="panel mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h4 class="mb-1">
+                <i class="fa-solid fa-triangle-exclamation text-warning me-2"></i>
+                Membresías próximas a vencer
+            </h4>
+
+            <p class="text-muted mb-0">
+                Clientes cuyas membresías vencen en los próximos 7 días
+            </p>
+        </div>
+
+        <span class="badge bg-warning text-dark" id="totalAlertas">
+            0 alertas
+        </span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Membresía</th>
+                    <th>Fecha de vencimiento</th>
+                    <th>Días restantes</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+
+            <tbody id="tablaAlertas">
+                <tr>
+                    <td colspan="5" class="text-center text-muted">
+                        Cargando alertas...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
 
         <!-- ============================= -->
         <!-- INFORMACIÓN -->

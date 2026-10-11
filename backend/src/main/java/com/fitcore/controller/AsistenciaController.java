@@ -4,7 +4,7 @@ import com.fitcore.model.Asistencia;
 import com.fitcore.service.AsistenciaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.http.HttpStatus;
 import java.util.List;
 
 @RestController
@@ -67,4 +67,13 @@ public class AsistenciaController {
 
         return ResponseEntity.noContent().build();
     }
+    // Manejar errores de validación de asistencias
+@ExceptionHandler(IllegalStateException.class)
+public ResponseEntity<String> manejarErrorValidacion(
+        IllegalStateException ex) {
+
+    return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(ex.getMessage());
+}
 }
