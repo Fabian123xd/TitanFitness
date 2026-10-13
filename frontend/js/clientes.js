@@ -49,8 +49,14 @@ if (contador) {
                 <td>${cliente.fechaRegistro ?? "-"}</td>
 
                 <td>
+                <button class="btn btn-sm btn-info text-white me-1"
+        onclick="verHistorial(${cliente.id})"
+        title="Ver historial">
+    <i class="fa-solid fa-clock-rotate-left"></i>
+</button>
                     <button class="btn btn-sm btn-warning"
         onclick="editarCliente(${cliente.id})">
+        
     <i class="fa-solid fa-pen"></i>
 </button>
 
@@ -246,4 +252,182 @@ if (buscarCliente) {
         });
 
     });
+}
+// ================================
+// HISTORIAL DEL CLIENTE
+// ================================
+
+async function verHistorial(id) {
+
+    const modal = new bootstrap.Modal(
+        document.getElementById("modalHistorial")
+    );
+
+    document.getElementById("nombreClienteHistorial").textContent =
+        "Cargando cliente...";
+
+    document.getElementById("dniClienteHistorial").textContent = "";
+
+    document.getElementById("historialInscripciones").textContent =
+        "Cargando...";
+
+    document.getElementById("historialPagos").textContent =
+        "Cargando...";
+
+    document.getElementById("historialAsistencias").textContent =
+        "Cargando...";
+
+    modal.show();
+
+    try {
+
+        const respuesta = await fetch(`${API_CLIENTES}/${id}`);
+
+        if (!respuesta.ok) {
+            throw new Error("No se pudo obtener el cliente");
+        }
+
+        const cliente = await respuesta.json();
+
+        document.getElementById("nombreClienteHistorial").textContent =
+            `${cliente.nombres} ${cliente.apellidos}`;
+
+        document.getElementById("dniClienteHistorial").textContent =
+            `DNI: ${cliente.dni}`;
+            // Cargar inscripciones del cliente
+const respuestaInscripciones = await fetch(
+    `http://localhost:8080/api/inscripciones/cliente/${id}`
+);
+
+if (!respuestaInscripciones.ok) {
+    throw new Error("No se pudieron cargar las inscripciones");
+}
+
+const inscripciones = await respuestaInscripciones.json();
+
+const contenedor = document.getElementById(
+    "historialInscripciones"
+);
+
+if (inscripciones.length === 0) {
+    contenedor.textContent = "Este cliente no tiene inscripciones.";
+} else {
+    contenedor.innerHTML = "";
+
+    inscripciones.forEach(inscripcion => {
+        const elemento = document.createElement("div");
+        elemento.className = "border rounded p-3 mb-2";
+
+        elemento.textContent =
+            `Inscripción #${inscripcion.id} | ` +
+            `Inicio: ${inscripcion.fechaInicio} | ` +
+            `Vencimiento: ${inscripcion.fechaFin} | ` +
+            `Estado: ${inscripcion.estado}`;
+
+        contenedor.appendChild(elemento);
+    });
+}
+// ================================
+// HISTORIAL DE PAGOS
+// ================================
+
+const respuestaPagos = await fetch(
+    `http://localhost:8080/api/pagos/cliente/${id}`
+);
+
+if (!respuestaPagos.ok) {
+    throw new Error("No se pudieron cargar los pagos");
+}
+
+const pagos = await respuestaPagos.json();
+
+const contenedorPagos = document.getElementById(
+    "historialPagos"
+);
+
+contenedorPagos.innerHTML = "";
+
+if (pagos.length === 0) {
+
+    contenedorPagos.textContent =
+        "Este cliente no tiene pagos registrados.";
+
+} else {
+
+    pagos.forEach(pago => {
+
+        const elemento = document.createElement("div");
+
+        elemento.className = "border rounded p-3 mb-2";
+
+        elemento.textContent =
+            `Pago #${pago.id} | ` +
+            `Monto: S/ ${Number(pago.monto).toFixed(2)} | ` +
+            `Método: ${pago.metodoPago} | ` +
+            `Estado: ${pago.estado}`;
+
+        contenedorPagos.appendChild(elemento);
+    });
+}
+// ================================
+// HISTORIAL DE ASISTENCIAS
+// ================================
+
+const respuestaAsistencias = await fetch(
+    `http://localhost:8080/api/asistencias/cliente/${id}`
+);
+
+if (!respuestaAsistencias.ok) {
+    throw new Error("No se pudieron cargar las asistencias");
+}
+
+const asistencias = await respuestaAsistencias.json();
+console.log("Asistencias del cliente:", asistencias);
+
+const contenedorAsistencias = document.getElementById(
+    "historialAsistencias"
+);
+
+contenedorAsistencias.innerHTML = "";
+
+if (asistencias.length === 0) {
+
+    contenedorAsistencias.textContent =
+        "Este cliente no tiene asistencias registradas.";
+
+} else {
+
+    asistencias.forEach(asistencia => {
+
+        const elemento = document.createElement("div");
+
+        elemento.className = "border rounded p-3 mb-2";
+
+      const fechaHora = new Date(asistencia.fechaHora);
+
+const fecha = fechaHora.toLocaleDateString("es-PE");
+
+const hora = fechaHora.toLocaleTimeString("es-PE", {
+    hour: "2-digit",
+    minute: "2-digit"
+});
+
+elemento.textContent =
+    `Asistencia #${asistencia.id} | ` +
+    `Fecha: ${fecha} | ` +
+    `Hora: ${hora} | ` +
+    `Estado: ${asistencia.estado}`;
+        contenedorAsistencias.appendChild(elemento);
+    });
+}
+
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        document.getElementById("nombreClienteHistorial").textContent =
+            "Error al cargar el cliente";
+    }
 }
