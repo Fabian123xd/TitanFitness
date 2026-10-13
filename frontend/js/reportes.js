@@ -49,12 +49,23 @@ async function consultarIngresosPorFechas(evento) {
     const fechaFin = document.getElementById("fechaFin").value;
     const mensaje = document.getElementById("mensajeReporte");
 
-    if (fechaInicio > fechaFin) {
-        mensaje.textContent =
-            "La fecha inicial no puede ser posterior a la fecha final.";
-        mensaje.className = "mt-3 mb-0 text-danger";
-        return;
-    }
+   if (fechaInicio > fechaFin) {
+
+    // Limpiar los resultados de la consulta anterior
+    document.getElementById("ingresosPeriodo").textContent =
+        "S/ 0.00";
+
+    document.getElementById("periodoConsultado").textContent =
+        "Sin consultar";
+
+    // Mostrar el mensaje de error
+    mensaje.textContent =
+        "La fecha inicial no puede ser posterior a la fecha final.";
+
+    mensaje.className = "mt-3 mb-0 text-danger";
+
+    return;
+}
 
     try {
         mensaje.textContent = "Consultando ingresos...";

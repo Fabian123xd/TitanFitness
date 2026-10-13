@@ -118,9 +118,13 @@ formCliente.addEventListener("submit", async function(event) {
             body: JSON.stringify(cliente)
         });
 
-        if (!respuesta.ok) {
-            throw new Error("No se pudo guardar el cliente");
-        }
+       if (!respuesta.ok) {
+    if (respuesta.status === 409) {
+        throw new Error("El DNI o correo ya se encuentra registrado");
+    }
+
+    throw new Error("No se pudo guardar el cliente");
+}
 
         formCliente.reset();
 
@@ -144,10 +148,9 @@ formCliente.addEventListener("submit", async function(event) {
         );
 
     } catch (error) {
-
-        console.error(error);
-        alert("Error al guardar el cliente");
-    }
+    console.error(error);
+    alert(error.message);
+}
 });
 function nuevoCliente() {
 

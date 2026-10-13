@@ -1,3 +1,4 @@
+
 const API_PAGOS = "http://localhost:8080/api/pagos";
 const API_INSCRIPCIONES = "http://localhost:8080/api/inscripciones";
 
@@ -15,7 +16,10 @@ const resultadoVuelto = document.getElementById("resultadoVuelto");
 const vueltoCalculado = document.getElementById("vueltoCalculado");
 const mensajePago = document.getElementById("mensajePago");
 
+// ========================================
 // INICIALIZACIÓN
+// ========================================
+
 document.addEventListener("DOMContentLoaded", () => {
     cargarPagos();
 
@@ -25,7 +29,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 });
 
+// ========================================
 // LISTAR PAGOS
+// ========================================
+
 async function cargarPagos() {
     const tabla = document.getElementById("tablaPagos");
 
@@ -41,6 +48,7 @@ async function cargarPagos() {
         mostrarPagos(
             document.getElementById("buscarPago").value
         );
+
         actualizarResumen();
 
     } catch (error) {
@@ -56,7 +64,10 @@ async function cargarPagos() {
     }
 }
 
+// ========================================
 // MOSTRAR PAGOS EN LA TABLA
+// ========================================
+
 function mostrarPagos(busqueda = "") {
     const tabla = document.getElementById("tablaPagos");
     const texto = busqueda.toLowerCase().trim();
@@ -75,7 +86,9 @@ function mostrarPagos(busqueda = "") {
             pago.metodoPago,
             pago.estado
         ].some(valor =>
-            String(valor ?? "").toLowerCase().includes(texto)
+            String(valor ?? "")
+                .toLowerCase()
+                .includes(texto)
         );
     });
 
@@ -87,6 +100,7 @@ function mostrarPagos(busqueda = "") {
                 </td>
             </tr>
         `;
+
         return;
     }
 
@@ -125,7 +139,10 @@ function mostrarPagos(busqueda = "") {
     });
 }
 
+// ========================================
 // ACTUALIZAR RESUMEN
+// ========================================
+
 function actualizarResumen() {
     document.getElementById("contadorPagos").textContent =
         pagosRegistrados.length;
@@ -141,7 +158,10 @@ function actualizarResumen() {
         `S/ ${total.toFixed(2)}`;
 }
 
+// ========================================
 // CARGAR INSCRIPCIONES PENDIENTES
+// ========================================
+
 async function cargarInscripciones() {
     inscripcionSelect.innerHTML =
         '<option value="">Cargando inscripciones...</option>';
@@ -149,6 +169,7 @@ async function cargarInscripciones() {
     montoInput.value = "";
     montoRecibidoInput.value = "";
     resultadoVuelto.classList.add("d-none");
+    mensajePago.textContent = "";
 
     try {
         const respuesta = await fetch(API_INSCRIPCIONES);
@@ -199,7 +220,10 @@ async function cargarInscripciones() {
     }
 }
 
+// ========================================
 // SELECCIONAR INSCRIPCIÓN
+// ========================================
+
 inscripcionSelect.addEventListener("change", () => {
     const inscripcion = inscripcionesPendientes.find(
         item => String(item.id) === inscripcionSelect.value
@@ -210,10 +234,14 @@ inscripcionSelect.addEventListener("change", () => {
         : "";
 
     montoRecibidoInput.value = "";
+
     calcularVuelto();
 });
 
-// MOSTRAR MONTO RECIBIDO SOLO PARA EFECTIVO
+// ========================================
+// MOSTRAR MONTO RECIBIDO SOLO EN EFECTIVO
+// ========================================
+
 function actualizarMetodoPago() {
     const esEfectivo = metodoPagoSelect.value === "EFECTIVO";
 
@@ -227,9 +255,20 @@ function actualizarMetodoPago() {
     calcularVuelto();
 }
 
+// ========================================
 // CALCULAR VUELTO
+// ========================================
+
 function calcularVuelto() {
+
+    // Ocultar el resultado anterior
     resultadoVuelto.classList.add("d-none");
+
+    // CORRECCIÓN:
+    // Eliminar mensajes de validaciones anteriores
+    // cuando el usuario modifica el monto o método.
+    mensajePago.textContent = "";
+    mensajePago.className = "small";
 
     if (metodoPagoSelect.value !== "EFECTIVO") {
         return;
@@ -245,31 +284,63 @@ function calcularVuelto() {
     if (
         !Number.isFinite(monto) ||
         !Number.isFinite(recibido) ||
-        monto <= 0 ||
-        recibido < monto
+        monto <= 0
     ) {
         return;
     }
 
+    // Si el dinero recibido es insuficiente,
+    // mostrar el error y no calcular vuelto.
+    if (recibido < monto) {
+        mensajePago.className = "small text-danger";
+        mensajePago.textContent =
+            "El efectivo recibido es insuficiente.";
+
+        return;
+    }
+
+    // Calcular vuelto cuando el monto es suficiente
     const vuelto = recibido - monto;
 
-    vueltoCalculado.textContent = `S/ ${vuelto.toFixed(2)}`;
+    vueltoCalculado.textContent =
+        `S/ ${vuelto.toFixed(2)}`;
+
     resultadoVuelto.classList.remove("d-none");
 }
 
+// ========================================
 // EVENTOS DEL FORMULARIO
+// ========================================
+
 modalPago.addEventListener("show.bs.modal", () => {
     formPago.reset();
+
     mensajePago.textContent = "";
+    mensajePago.className = "small";
+
     actualizarMetodoPago();
     cargarInscripciones();
 });
 
-metodoPagoSelect.addEventListener("change", actualizarMetodoPago);
-montoInput.addEventListener("input", calcularVuelto);
-montoRecibidoInput.addEventListener("input", calcularVuelto);
+metodoPagoSelect.addEventListener(
+    "change",
+    actualizarMetodoPago
+);
 
+montoInput.addEventListener(
+    "input",
+    calcularVuelto
+);
+
+montoRecibidoInput.addEventListener(
+    "input",
+    calcularVuelto
+);
+
+// ========================================
 // REGISTRAR PAGO
+// ========================================
+
 formPago.addEventListener("submit", async event => {
     event.preventDefault();
 
@@ -278,15 +349,20 @@ formPago.addEventListener("submit", async event => {
     const metodoPago = metodoPagoSelect.value;
     const montoRecibido = montoRecibidoInput.value;
 
-    const boton = formPago.querySelector('button[type="submit"]');
+    const boton = formPago.querySelector(
+        'button[type="submit"]'
+    );
 
+    // Validar campos obligatorios
     if (!inscripcionId || !monto || !metodoPago) {
         mensajePago.className = "small text-danger";
         mensajePago.textContent =
             "Completa todos los campos obligatorios.";
+
         return;
     }
 
+    // Buscar inscripción pendiente
     const inscripcion = inscripcionesPendientes.find(
         item => String(item.id) === inscripcionId
     );
@@ -295,15 +371,18 @@ formPago.addEventListener("submit", async event => {
         mensajePago.className = "small text-danger";
         mensajePago.textContent =
             "Selecciona una inscripción pendiente válida.";
+
         return;
     }
 
+    // Validar precio de la membresía
     const precio = Number(inscripcion.membresia.precio);
 
     if (Number(monto) !== precio) {
         mensajePago.className = "small text-danger";
         mensajePago.textContent =
             `El monto de la membresía debe ser S/ ${precio.toFixed(2)}.`;
+
         return;
     }
 
@@ -313,6 +392,7 @@ formPago.addEventListener("submit", async event => {
         metodoPago
     });
 
+    // Validación de pago en efectivo
     if (metodoPago === "EFECTIVO") {
         if (
             !montoRecibido ||
@@ -322,13 +402,18 @@ formPago.addEventListener("submit", async event => {
             mensajePago.className = "small text-danger";
             mensajePago.textContent =
                 "El efectivo recibido es insuficiente.";
+
             return;
         }
 
-        parametros.append("montoRecibido", montoRecibido);
+        parametros.append(
+            "montoRecibido",
+            montoRecibido
+        );
     }
 
     boton.disabled = true;
+
     mensajePago.className = "small text-muted";
     mensajePago.textContent = "Registrando pago...";
 
@@ -350,7 +435,9 @@ formPago.addEventListener("submit", async event => {
 
         await cargarPagos();
 
-        const vuelto = Number(pagoGuardado.vuelto ?? 0);
+        const vuelto = Number(
+            pagoGuardado.vuelto ?? 0
+        );
 
         alert(
             `Pago registrado correctamente.\n` +
@@ -369,5 +456,8 @@ formPago.addEventListener("submit", async event => {
     }
 });
 
+// ========================================
 // ESTADO INICIAL
+// ========================================
+
 actualizarMetodoPago();
