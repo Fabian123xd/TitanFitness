@@ -1,39 +1,30 @@
 
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titan Fitness Club | Pagos</title>
 
-    <title>Titan Fitness | Pagos</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
-
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-          rel="stylesheet">
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
-
 <div class="d-flex">
 
     <!-- MENÚ LATERAL -->
     <aside class="sidebar">
-
         <div class="logo">
             <i class="fa-solid fa-dumbbell"></i>
-            <span>Titan Fitness Club</span>
+            <span>Titan Fitness<br>Club</span>
         </div>
 
         <nav>
-
             <a href="index.html">
-                <i class="fa-solid fa-chart-line"></i>
-                <span>Dashboard</span>
+                <i class="fa-solid fa-gauge-high"></i>
+                <span>Panel de control</span>
             </a>
 
             <a href="clientes.html">
@@ -45,10 +36,11 @@
                 <i class="fa-solid fa-id-card"></i>
                 <span>Membresías</span>
             </a>
+
             <a href="inscripciones.html">
-    <i class="fa-solid fa-clipboard-list"></i>
-    <span>Inscripciones</span>
-</a>
+                <i class="fa-solid fa-clipboard-list"></i>
+                <span>Inscripciones</span>
+            </a>
 
             <a href="pagos.html" class="active">
                 <i class="fa-solid fa-money-bill-wave"></i>
@@ -59,10 +51,11 @@
                 <i class="fa-solid fa-calendar-check"></i>
                 <span>Asistencias</span>
             </a>
+
             <a href="reportes.html">
-    <i class="fa-solid fa-chart-column"></i>
-    <span>Reportes</span>
-</a>
+                <i class="fa-solid fa-chart-column"></i>
+                <span>Reportes</span>
+            </a>
 
             <a href="entrenadores.html">
                 <i class="fa-solid fa-user-tie"></i>
@@ -73,9 +66,7 @@
                 <i class="fa-solid fa-dumbbell"></i>
                 <span>Rutinas</span>
             </a>
-
         </nav>
-
     </aside>
 
     <!-- CONTENIDO PRINCIPAL -->
@@ -83,105 +74,103 @@
 
         <!-- ENCABEZADO -->
         <div class="topbar">
-
             <div>
+                <div class="text-uppercase text-muted small fw-semibold mb-2">
+                    Administración / Pagos
+                </div>
+
                 <h2>Gestión de pagos</h2>
                 <p>
-                    Administra los pagos registrados
-                    en Titan Fitness Club
+                    Consulta y administra los cobros realizados
+                    en Titan Fitness Club.
                 </p>
             </div>
 
             <button
                 type="button"
-                class="btn btn-primary px-4 py-2"
+                class="btn btn-primary"
                 data-bs-toggle="modal"
-                data-bs-target="#modalPago">
-
+                data-bs-target="#modalPago"
+            >
                 <i class="fa-solid fa-plus me-2"></i>
                 Registrar pago
-
             </button>
-
         </div>
 
-        <!-- RESUMEN DE PAGOS -->
-        <div class="row g-4 mb-4">
+        <!-- TÍTULO DEL RESUMEN -->
+        <div class="mb-3">
+            <h5 class="fw-semibold mb-1">
+                Resumen de pagos
+            </h5>
+            <p class="text-muted small mb-0">
+                Información general de los movimientos registrados
+            </p>
+        </div>
+
+        <!-- TARJETAS DE RESUMEN -->
+        <div class="row g-3 mb-4">
 
             <div class="col-md-6 col-xl-4">
-
                 <div class="card-dashboard">
-
                     <div>
                         <p>Pagos registrados</p>
                         <h3 id="contadorPagos">-</h3>
+                        <small class="text-muted">
+                            Total de operaciones
+                        </small>
                     </div>
-
                     <i class="fa-solid fa-receipt"></i>
-
                 </div>
-
             </div>
 
             <div class="col-md-6 col-xl-4">
-
                 <div class="card-dashboard">
-
                     <div>
                         <p>Total recaudado</p>
-                        <h3 id="totalRecaudado">
-                            S/ 0.00
-                        </h3>
+                        <h3 id="totalRecaudado">S/ 0.00</h3>
+                        <small class="text-muted">
+                            Ingresos de pagos confirmados
+                        </small>
                     </div>
-
-                    <i class="fa-solid fa-money-bill-wave"></i>
-
+                    <i class="fa-solid fa-wallet"></i>
                 </div>
-
             </div>
 
         </div>
 
         <!-- HISTORIAL DE PAGOS -->
-        <div class="panel">
+        <section class="panel">
 
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-
                 <div>
-
                     <h4 class="mb-1">
                         Historial de pagos
                     </h4>
 
                     <p class="text-muted mb-0">
-                        Consulta los pagos realizados
-                        por los clientes
+                        Revisa los montos, métodos de pago y estados
+                        de cada operación.
                     </p>
-
                 </div>
 
                 <!-- BUSCADOR -->
                 <div class="client-search">
-
                     <i class="fa-solid fa-magnifying-glass"></i>
 
                     <input
                         type="text"
                         id="buscarPago"
-                        placeholder="Buscar pago..."
-                        autocomplete="off">
-
+                        placeholder="Buscar cliente o pago..."
+                        autocomplete="off"
+                        aria-label="Buscar pago"
+                    >
                 </div>
-
             </div>
 
             <!-- TABLA -->
             <div class="table-responsive">
-
                 <table class="table table-hover align-middle">
-
                     <thead>
-
                         <tr>
                             <th>ID</th>
                             <th>Cliente</th>
@@ -191,128 +180,112 @@
                             <th>Fecha</th>
                             <th>Estado</th>
                         </tr>
-
                     </thead>
 
                     <tbody id="tablaPagos">
-
                         <tr>
-
-                            <td colspan="7"
-                                class="text-center py-4">
-
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                <i class="fa-solid fa-spinner fa-spin me-2"></i>
                                 Cargando pagos...
-
                             </td>
-
                         </tr>
-
                     </tbody>
-
                 </table>
-
             </div>
 
-        </div>
+        </section>
 
     </main>
-
 </div>
 
-
-<!-- MODAL REGISTRAR PAGO -->
-<div class="modal fade"
-     id="modalPago"
-     tabindex="-1"
-     aria-labelledby="tituloModalPago"
-     aria-hidden="true">
-
+<!-- MODAL: REGISTRAR PAGO -->
+<div
+    class="modal fade"
+    id="modalPago"
+    tabindex="-1"
+    aria-labelledby="tituloModalPago"
+    aria-hidden="true"
+>
     <div class="modal-dialog modal-dialog-centered">
-
         <div class="modal-content">
 
             <!-- ENCABEZADO DEL MODAL -->
             <div class="modal-header">
-
                 <div>
-
                     <h5 class="modal-title" id="tituloModalPago">
                         Registrar nuevo pago
                     </h5>
 
                     <small class="text-muted">
-                        Complete la información del pago
+                        Completa la información del cobro
                     </small>
-
                 </div>
 
                 <button
                     type="button"
                     class="btn-close"
                     data-bs-dismiss="modal"
-                    aria-label="Cerrar">
-                </button>
-
+                    aria-label="Cerrar"
+                ></button>
             </div>
 
             <!-- FORMULARIO -->
             <form id="formPago">
-
                 <div class="modal-body">
 
                     <!-- INSCRIPCIÓN -->
                     <div class="mb-3">
-
-                        <label for="inscripcionId"
-                               class="form-label">
+                        <label for="inscripcionId" class="form-label">
                             Inscripción
                         </label>
 
                         <select
                             id="inscripcionId"
                             class="form-select"
-                            required>
-
+                            required
+                        >
                             <option value="">
                                 Seleccionar inscripción
                             </option>
-
                         </select>
 
+                        <small class="text-muted">
+                            Solo se muestran inscripciones pendientes de pago.
+                        </small>
                     </div>
 
-                    <!-- MONTO DE LA MEMBRESÍA -->
+                    <!-- MONTO -->
                     <div class="mb-3">
-
-                        <label for="monto"
-                               class="form-label">
-                            Monto de la membresía (S/)
+                        <label for="monto" class="form-label">
+                            Monto de la membresía
                         </label>
 
-                        <input
-                            type="number"
-                            id="monto"
-                            class="form-control"
-                            min="0.01"
-                            step="0.01"
-                            placeholder="Ej. 80.00"
-                            required>
+                        <div class="input-group">
+                            <span class="input-group-text">S/</span>
 
+                            <input
+                                type="number"
+                                id="monto"
+                                class="form-control"
+                                min="0.01"
+                                step="0.01"
+                                placeholder="80.00"
+                                required
+                            >
+                        </div>
                     </div>
 
                     <!-- MÉTODO DE PAGO -->
                     <div class="mb-3">
-
-                        <label for="metodoPago"
-                               class="form-label">
+                        <label for="metodoPago" class="form-label">
                             Método de pago
                         </label>
 
                         <select
                             id="metodoPago"
                             class="form-select"
-                            required>
-
+                            required
+                        >
                             <option value="">
                                 Seleccionar método
                             </option>
@@ -336,94 +309,83 @@
                             <option value="TARJETA">
                                 Tarjeta
                             </option>
-
                         </select>
-
                     </div>
 
                     <!-- MONTO RECIBIDO -->
-                    <div class="mb-3 d-none"
-                         id="grupoMontoRecibido">
-
-                        <label for="montoRecibido"
-                               class="form-label">
-                            Monto recibido (S/)
+                    <div class="mb-3 d-none" id="grupoMontoRecibido">
+                        <label for="montoRecibido" class="form-label">
+                            Efectivo recibido
                         </label>
 
-                        <input
-                            type="number"
-                            id="montoRecibido"
-                            class="form-control"
-                            min="0"
-                            step="0.01"
-                            placeholder="Ej. 100.00">
+                        <div class="input-group">
+                            <span class="input-group-text">S/</span>
+
+                            <input
+                                type="number"
+                                id="montoRecibido"
+                                class="form-control"
+                                min="0"
+                                step="0.01"
+                                placeholder="100.00"
+                            >
+                        </div>
 
                         <small class="text-muted">
-                            Ingresa el efectivo entregado
-                            por el cliente.
+                            Ingresa el dinero entregado por el cliente.
                         </small>
-
                     </div>
 
-                    <!-- VUELTO CALCULADO -->
-                    <div class="alert alert-success d-none"
-                         id="resultadoVuelto">
-
+                    <!-- RESULTADO DEL VUELTO -->
+                    <div
+                        class="alert alert-success d-none"
+                        id="resultadoVuelto"
+                    >
                         <div class="d-flex justify-content-between align-items-center">
-
-                            <strong>
-                                Vuelto:
-                            </strong>
+                            <span>
+                                <i class="fa-solid fa-circle-check me-2"></i>
+                                Vuelto a entregar
+                            </span>
 
                             <strong id="vueltoCalculado">
                                 S/ 0.00
                             </strong>
-
                         </div>
-
                     </div>
 
                     <!-- MENSAJE DE VALIDACIÓN -->
                     <div
                         id="mensajePago"
                         class="small"
-                        role="status">
-                    </div>
+                        role="status"
+                        aria-live="polite"
+                    ></div>
 
                 </div>
 
                 <!-- BOTONES -->
                 <div class="modal-footer">
-
                     <button
                         type="button"
                         class="btn btn-light"
-                        data-bs-dismiss="modal">
-
+                        data-bs-dismiss="modal"
+                    >
                         Cancelar
-
                     </button>
 
                     <button
                         type="submit"
-                        class="btn btn-primary">
-
+                        class="btn btn-primary"
+                    >
                         <i class="fa-solid fa-floppy-disk me-2"></i>
-
                         Guardar pago
-
                     </button>
-
                 </div>
 
             </form>
-
         </div>
-
     </div>
-
 </div>
-
 
 <!-- BOOTSTRAP -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

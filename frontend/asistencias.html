@@ -1,16 +1,17 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Titan Fitness | Asistencias</title>
+    <title>Titan Fitness Club | Asistencias</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
 
+<body>
 <div class="d-flex">
 
     <!-- MENÚ LATERAL -->
@@ -22,8 +23,8 @@
 
         <nav>
             <a href="index.html">
-                <i class="fa-solid fa-chart-line"></i>
-                <span>Dashboard</span>
+                <i class="fa-solid fa-gauge-high"></i>
+                <span>Panel de control</span>
             </a>
 
             <a href="clientes.html">
@@ -50,10 +51,11 @@
                 <i class="fa-solid fa-calendar-check"></i>
                 <span>Asistencias</span>
             </a>
+
             <a href="reportes.html">
-    <i class="fa-solid fa-chart-column"></i>
-    <span>Reportes</span>
-</a>
+                <i class="fa-solid fa-chart-column"></i>
+                <span>Reportes</span>
+            </a>
 
             <a href="entrenadores.html">
                 <i class="fa-solid fa-user-tie"></i>
@@ -73,16 +75,21 @@
         <!-- ENCABEZADO -->
         <div class="topbar">
             <div>
+                <p class="mb-1 small text-uppercase">
+                    Administración / Asistencias
+                </p>
+
                 <h2>Control de asistencias</h2>
+
                 <p>
-                    Registra y supervisa los ingresos de los
-                    clientes de Titan Fitness Club
+                    Consulta y registra los ingresos de los clientes
+                    de Titan Fitness Club.
                 </p>
             </div>
 
             <button
                 type="button"
-                class="btn btn-primary px-4 py-2"
+                class="btn btn-primary px-3"
                 data-bs-toggle="modal"
                 data-bs-target="#modalAsistencia">
 
@@ -91,15 +98,26 @@
             </button>
         </div>
 
-        <!-- INDICADORES -->
-        <div class="row g-4 mb-4">
+        <!-- RESUMEN -->
+        <div class="mb-3">
+            <h5 class="mb-1">Resumen de asistencias</h5>
+            <p class="text-muted mb-0">
+                Información general de los ingresos registrados
+            </p>
+        </div>
+
+        <div class="row g-3 mb-4">
 
             <div class="col-md-6 col-xl-3">
                 <div class="card-dashboard">
                     <div>
                         <p>Total asistencias</p>
                         <h3 id="totalAsistencias">0</h3>
+                        <small class="text-muted">
+                            Ingresos registrados
+                        </small>
                     </div>
+
                     <i class="fa-solid fa-calendar-check"></i>
                 </div>
             </div>
@@ -109,7 +127,11 @@
                     <div>
                         <p>Ingresos de hoy</p>
                         <h3 id="asistenciasHoy">0</h3>
+                        <small class="text-muted">
+                            Registros del día
+                        </small>
                     </div>
+
                     <i class="fa-solid fa-door-open"></i>
                 </div>
             </div>
@@ -119,7 +141,11 @@
                     <div>
                         <p>Clientes que ingresaron hoy</p>
                         <h3 id="clientesHoy">0</h3>
+                        <small class="text-muted">
+                            Clientes diferentes
+                        </small>
                     </div>
+
                     <i class="fa-solid fa-users"></i>
                 </div>
             </div>
@@ -129,7 +155,11 @@
                     <div>
                         <p>Ingresos del mes</p>
                         <h3 id="asistenciasMes">0</h3>
+                        <small class="text-muted">
+                            Registros mensuales
+                        </small>
                     </div>
+
                     <i class="fa-solid fa-calendar-days"></i>
                 </div>
             </div>
@@ -137,13 +167,18 @@
         </div>
 
         <!-- HISTORIAL -->
-        <div class="panel">
+        <section class="panel">
 
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+
                 <div>
-                    <h4 class="mb-1">Historial de asistencias</h4>
+                    <h4 class="mb-1">
+                        Registro de asistencias
+                    </h4>
+
                     <p class="text-muted mb-0">
-                        Consulta los ingresos registrados en el gimnasio
+                        Revisa las fechas, horas y clientes que
+                        ingresaron al gimnasio.
                     </p>
                 </div>
 
@@ -163,11 +198,11 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Cliente</th>
-                            <th>Membresía</th>
-                            <th>Fecha</th>
-                            <th>Hora</th>
-                            <th>Estado</th>
+                            <th>CLIENTE</th>
+                            <th>MEMBRESÍA</th>
+                            <th>FECHA</th>
+                            <th>HORA</th>
+                            <th>ESTADO</th>
                         </tr>
                     </thead>
 
@@ -181,24 +216,28 @@
                 </table>
             </div>
 
-        </div>
+        </section>
     </main>
 </div>
 
-<!-- MODAL REGISTRAR INGRESO -->
-<div class="modal fade"
-     id="modalAsistencia"
-     tabindex="-1"
-     aria-labelledby="tituloModalAsistencia"
-     aria-hidden="true">
+<!-- MODAL REGISTRAR ASISTENCIA -->
+<div
+    class="modal fade"
+    id="modalAsistencia"
+    tabindex="-1"
+    aria-labelledby="tituloModalAsistencia"
+    aria-hidden="true">
 
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
 
             <div class="modal-header">
                 <div>
-                    <h5 class="modal-title" id="tituloModalAsistencia">
-                        Registrar ingreso al gimnasio
+                    <h5
+                        class="modal-title"
+                        id="tituloModalAsistencia">
+
+                        Registrar nuevo ingreso
                     </h5>
 
                     <small class="text-muted">
@@ -215,10 +254,14 @@
             </div>
 
             <form id="formAsistencia">
+
                 <div class="modal-body">
 
                     <div class="mb-3">
-                        <label for="inscripcionId" class="form-label">
+                        <label
+                            for="inscripcionId"
+                            class="form-label">
+
                             Cliente e inscripción
                         </label>
 
@@ -233,8 +276,9 @@
                         </select>
                     </div>
 
-                    <div class="alert alert-info">
+                    <div class="alert alert-info mb-3">
                         <i class="fa-solid fa-circle-info me-2"></i>
+
                         El sistema verificará que la inscripción
                         esté activa y que la membresía no haya vencido.
                     </div>
@@ -248,10 +292,12 @@
                 </div>
 
                 <div class="modal-footer">
+
                     <button
                         type="button"
                         class="btn btn-light"
                         data-bs-dismiss="modal">
+
                         Cancelar
                     </button>
 
@@ -263,9 +309,10 @@
                         <i class="fa-solid fa-check me-2"></i>
                         Confirmar ingreso
                     </button>
-                </div>
-            </form>
 
+                </div>
+
+            </form>
         </div>
     </div>
 </div>
