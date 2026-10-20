@@ -87,4 +87,53 @@ public class RutinaService {
 
         return rutinaRepository.save(rutina);
     }
+     // Actualizar rutina
+    public Rutina actualizar(
+            Long id,
+            Long clienteId,
+            Long entrenadorId,
+            String nombre,
+            String descripcion) {
+
+        Rutina rutina = rutinaRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Rutina no encontrada"));
+
+        Cliente cliente = clienteRepository.findById(clienteId)
+                .orElseThrow(() ->
+                        new RuntimeException("Cliente no encontrado"));
+
+        Entrenador entrenador = entrenadorRepository.findById(entrenadorId)
+                .orElseThrow(() ->
+                        new RuntimeException("Entrenador no encontrado"));
+
+        if (!Boolean.TRUE.equals(entrenador.getActivo())) {
+            throw new RuntimeException(
+                    "No se puede asignar una rutina a un entrenador inactivo");
+        }
+
+        rutina.setCliente(cliente);
+        rutina.setEntrenador(entrenador);
+        rutina.setNombre(nombre);
+        rutina.setDescripcion(descripcion);
+
+        return rutinaRepository.save(rutina);
+    }
+
+    // Reactivar rutina
+    public Rutina reactivar(Long id) {
+
+        Rutina rutina = rutinaRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Rutina no encontrada"));
+
+        if (!Boolean.TRUE.equals(rutina.getEntrenador().getActivo())) {
+            throw new RuntimeException(
+                    "No se puede reactivar una rutina con un entrenador inactivo");
+        }
+
+        rutina.setActiva(true);
+
+        return rutinaRepository.save(rutina);
+    }
 }

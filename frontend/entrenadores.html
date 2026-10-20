@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Entrenadores | Titan Fitness Club</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    /* Estilos exclusivos del módulo Entrenadores */
+
+    .entrenadores-page .entrenadores-grid {
+      display: grid;
+      grid-template-columns: minmax(320px, 0.85fr) minmax(0, 1.65fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .entrenadores-page .entrenadores-card {
+      background: #ffffff;
+      border: 1px solid #e1e7f0;
+      border-radius: 12px;
+      padding: 22px;
+      min-height: 0 !important;
+      height: auto !important;
+      box-shadow: 0 3px 12px rgba(20, 35, 60, 0.04);
+    }
+
+    .entrenadores-page .entrenadores-card form {
+      min-height: 0 !important;
+      height: auto !important;
+    }
+
+    .entrenadores-page .card-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      padding-bottom: 15px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid #e9edf4;
+    }
+
+    .entrenadores-page .card-heading h2 {
+      margin: 0 0 5px;
+      color: #19283e;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .entrenadores-page .card-heading p {
+      margin: 0;
+      color: #8390a4;
+      font-size: 12px;
+    }
+
+    .entrenadores-page .card-heading i {
+      color: #7e98bb;
+      font-size: 18px;
+    }
+
+    .entrenadores-page .form-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #34445d;
+    }
+
+    .entrenadores-page .form-control,
+    .entrenadores-page .form-select {
+      min-height: 40px;
+      font-size: 13px;
+      border: 1px solid #d8e1ed;
+      border-radius: 7px;
+    }
+
+    .entrenadores-page .form-control:focus,
+    .entrenadores-page .form-select:focus {
+      border-color: #3478f6;
+      box-shadow: 0 0 0 3px rgba(52, 120, 246, 0.1);
+    }
+
+    .entrenadores-page .btn-primary {
+      background-color: #3478f6;
+      border-color: #3478f6;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .entrenadores-page .resumen {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 17px;
+      color: #69788f;
+      font-size: 13px;
+    }
+
+    .entrenadores-page .resumen-numero {
+      background: #e9f1ff;
+      color: #2563eb;
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-weight: 700;
+    }
+
+    .entrenadores-page .table {
+      margin-bottom: 0;
+      font-size: 12px;
+      vertical-align: middle;
+    }
+
+    .entrenadores-page .table thead th {
+      background: #f5f7fb;
+      color: #53647d;
+      font-size: 11px;
+      text-transform: uppercase;
+      padding: 13px 10px;
+      white-space: nowrap;
+    }
+
+    .entrenadores-page .table tbody td {
+      padding: 13px 10px;
+      border-color: #edf1f6;
+      color: #26364b;
+    }
+
+    .entrenadores-page .nombre-entrenador {
+      font-weight: 700;
+      color: #1e3353;
+    }
+
+    .entrenadores-page .estado {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .entrenadores-page .estado.activo {
+      background: #e8f8ee;
+      color: #167647;
+    }
+
+    .entrenadores-page .estado.inactivo {
+      background: #f1f2f5;
+      color: #697386;
+    }
+
+    .entrenadores-page .acciones {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .entrenadores-page .acciones .btn {
+      padding: 6px 9px;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .entrenadores-page .mensaje-formulario {
+      font-size: 13px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 1199px) {
+      .entrenadores-page .entrenadores-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .entrenadores-page .entrenadores-card {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div class="d-flex">
+
+  <!-- MENÚ LATERAL -->
+  <aside class="sidebar" aria-label="Navegación principal">
+
+    <div class="logo">
+      <i class="fa-solid fa-dumbbell"></i>
+      <span>Titan Fitness Club</span>
+    </div>
+
+    <nav>
+      <div class="nav-section">General</div>
+
+      <a href="index.html" title="Dashboard">
+        <i class="fa-solid fa-gauge-high"></i>
+        <span>Panel de control</span>
+      </a>
+
+      <div class="nav-section">Administración</div>
+
+      <a href="clientes.html" title="Clientes">
+        <i class="fa-solid fa-users"></i>
+        <span>Clientes</span>
+      </a>
+
+      <a href="membresias.html" title="Membresías">
+        <i class="fa-solid fa-id-card"></i>
+        <span>Membresías</span>
+      </a>
+
+      <a href="inscripciones.html" title="Inscripciones">
+        <i class="fa-solid fa-clipboard-list"></i>
+        <span>Inscripciones</span>
+      </a>
+
+      <a href="pagos.html" title="Pagos">
+        <i class="fa-solid fa-money-bill-wave"></i>
+        <span>Pagos</span>
+      </a>
+
+      <a href="asistencias.html" title="Asistencias">
+        <i class="fa-solid fa-calendar-check"></i>
+        <span>Asistencias</span>
+      </a>
+
+      <a href="reportes.html" title="Reportes">
+        <i class="fa-solid fa-chart-column"></i>
+        <span>Reportes</span>
+      </a>
+
+      <div class="nav-section">Personal y entrenamiento</div>
+
+      <a href="entrenadores.html"
+         class="active"
+         aria-current="page"
+         title="Entrenadores">
+        <i class="fa-solid fa-user-tie"></i>
+        <span>Entrenadores</span>
+      </a>
+
+      <a href="rutinas.html" title="Rutinas">
+        <i class="fa-solid fa-dumbbell"></i>
+        <span>Rutinas</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      Sistema de gestión · Titan Fitness
+    </div>
+
+  </aside>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="main-content entrenadores-page">
+
+    <header class="dashboard-heading">
+      <div>
+        <div class="dashboard-eyebrow">
+          Administración / Entrenadores
+        </div>
+
+        <h1>Gestión de Entrenadores</h1>
+
+        <p>
+          Administra el personal de entrenamiento del gimnasio.
+        </p>
+      </div>
+
+      <div class="dashboard-user">
+        <i class="fa-solid fa-circle-user"></i>
+        <div>
+          <strong>Administrador</strong>
+          <small>Panel administrativo</small>
+        </div>
+      </div>
+    </header>
+
+    <div class="entrenadores-grid">
+
+      <!-- FORMULARIO -->
+      <section class="entrenadores-card">
+
+        <div class="card-heading">
+          <div>
+            <h2 id="tituloFormulario">
+              Registrar entrenador
+            </h2>
+
+            <p id="subtituloFormulario">
+              Completa los datos del entrenador
+            </p>
+          </div>
+
+          <i class="fa-solid fa-user-plus"></i>
+        </div>
+
+        <form id="formEntrenador">
+
+          <input type="hidden" id="entrenadorId">
+
+          <div class="row g-3">
+
+            <div class="col-md-6">
+              <label for="nombres" class="form-label">
+                Nombres *
+              </label>
+
+              <input
+                type="text"
+                id="nombres"
+                class="form-control"
+                maxlength="100"
+                required
+              >
+            </div>
+
+            <div class="col-md-6">
+              <label for="apellidos" class="form-label">
+                Apellidos *
+              </label>
+
+              <input
+                type="text"
+                id="apellidos"
+                class="form-control"
+                maxlength="100"
+                required
+              >
+            </div>
+
+            <div class="col-12">
+              <label for="especialidad" class="form-label">
+                Especialidad
+              </label>
+
+              <input
+                type="text"
+                id="especialidad"
+                class="form-control"
+                maxlength="100"
+                placeholder="Ej. Hipertrofia"
+              >
+            </div>
+
+            <div class="col-12">
+              <label for="telefono" class="form-label">
+                Teléfono
+              </label>
+
+              <input
+                type="tel"
+                id="telefono"
+                class="form-control"
+                maxlength="15"
+                placeholder="Ej. 987654321"
+              >
+            </div>
+
+            <div class="col-12">
+              <label for="correo" class="form-label">
+                Correo electrónico
+              </label>
+
+              <input
+                type="email"
+                id="correo"
+                class="form-control"
+                maxlength="120"
+                placeholder="correo@ejemplo.com"
+              >
+            </div>
+
+            <div class="col-12" id="grupoEstado" hidden>
+              <label for="activo" class="form-label">
+                Estado
+              </label>
+
+              <select id="activo" class="form-select">
+                <option value="true">Activo</option>
+                <option value="false">Inactivo</option>
+              </select>
+            </div>
+
+          </div>
+
+          <div class="d-flex flex-wrap gap-2 mt-4">
+            <button
+              type="submit"
+              id="btnGuardar"
+              class="btn btn-primary"
+            >
+              <i class="fa-solid fa-floppy-disk me-1"></i>
+              Registrar entrenador
+            </button>
+
+            <button
+              type="button"
+              id="btnCancelar"
+              class="btn btn-outline-secondary"
+              hidden
+            >
+              Cancelar
+            </button>
+          </div>
+
+          <div
+            id="mensajeRegistro"
+            class="mensaje-formulario"
+            role="status"
+          ></div>
+
+        </form>
+      </section>
+
+      <!-- LISTADO -->
+      <section class="entrenadores-card">
+
+        <div class="card-heading">
+          <div>
+            <h2>Entrenadores registrados</h2>
+            <p>Personal registrado en el sistema</p>
+          </div>
+
+          <i class="fa-solid fa-users"></i>
+        </div>
+
+        <div class="resumen">
+          <span id="totalEntrenadores" class="resumen-numero">
+            0
+          </span>
+          <span>Entrenadores registrados</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th>Entrenador</th>
+                <th>Especialidad</th>
+                <th>Contacto</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+
+            <tbody id="tablaEntrenadores">
+              <tr>
+                <td colspan="5" class="text-center py-4">
+                  Cargando entrenadores...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p
+          id="mensajeListado"
+          class="text-danger small mt-3"
+          role="status"
+        ></p>
+
+      </section>
+
+    </div>
+
+    <footer class="dashboard-bottom mt-4">
+      <span>
+        © Titan Fitness Club · Sistema administrativo
+      </span>
+      <span>Entrenadores</span>
+    </footer>
+
+  </main>
+</div>
+
+<!-- JAVASCRIPT SEPARADO -->
+<script src="js/entrenadores.js"></script>
+
+</body>
+</html>

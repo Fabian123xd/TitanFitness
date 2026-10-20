@@ -46,7 +46,6 @@ public class EntrenadorService {
 
         return entrenadorRepository.save(entrenador);
     }
-
     // Actualizar entrenador
     public Entrenador actualizar(Long id, Entrenador datos) {
 
@@ -60,9 +59,13 @@ public class EntrenadorService {
         entrenador.setTelefono(datos.getTelefono());
         entrenador.setCorreo(datos.getCorreo());
 
+        // Actualizar también el estado del entrenador
+        if (datos.getActivo() != null) {
+            entrenador.setActivo(datos.getActivo());
+        }
+
         return entrenadorRepository.save(entrenador);
     }
-
     // Desactivar entrenador
     public Entrenador desactivar(Long id) {
 

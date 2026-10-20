@@ -83,4 +83,33 @@ public class RutinaController {
                 rutinaService.desactivar(id)
         );
     }
+       // Actualizar rutina
+    @PutMapping("/{id}")
+    public ResponseEntity<Rutina> actualizar(
+            @PathVariable Long id,
+            @RequestParam Long clienteId,
+            @RequestParam Long entrenadorId,
+            @RequestParam String nombre,
+            @RequestParam(required = false) String descripcion) {
+
+        return ResponseEntity.ok(
+                rutinaService.actualizar(
+                        id,
+                        clienteId,
+                        entrenadorId,
+                        nombre,
+                        descripcion
+                )
+        );
+    }
+
+    // Reactivar rutina
+    @PutMapping("/{id}/reactivar")
+    public ResponseEntity<Rutina> reactivar(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                rutinaService.reactivar(id)
+        );
+    }
 }

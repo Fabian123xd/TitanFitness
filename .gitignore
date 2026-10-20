@@ -20,3 +20,8 @@ Thumbs.db
 # Logs
 *.log
 error-spring.txt
+
+.env
+**/.env
+backend/error.txt
+backend/error-spring.txt
