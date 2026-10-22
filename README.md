@@ -1,255 +1,431 @@
-Sistema Web de Gestión y Seguimiento para Gimnasio
+# 🏋️ Titan Fitness Club
 
-Titan Fitness Club es un sistema web desarrollado para automatizar los procesos administrativos de un gimnasio, facilitando la gestión de clientes, membresías, inscripciones, pagos y asistencias mediante una plataforma centralizada.
+## Sistema Web de Gestión y Seguimiento para Gimnasio
 
-🎯 Objetivo
+Titan Fitness Club es un sistema web desarrollado para automatizar y optimizar los procesos administrativos de un gimnasio.
 
-Desarrollar un sistema web que permita optimizar la gestión administrativa de un gimnasio, centralizando la información, automatizando procesos y facilitando el seguimiento de las operaciones diarias.
+Permite gestionar clientes, membresías, inscripciones, pagos, asistencias, entrenadores y rutinas desde una plataforma centralizada, facilitando el control de las operaciones diarias.
 
-🛠️ Tecnologías utilizadas
+El sistema utiliza una arquitectura por capas, una API REST desarrollada con Spring Boot y una base de datos PostgreSQL alojada en Neon Cloud.
 
-Backend
+---
 
-Java
+## 🎯 Objetivo general
 
-Spring Boot
+Desarrollar un sistema web que permita optimizar la gestión administrativa de un gimnasio mediante la automatización de procesos, centralización de información y seguimiento de las operaciones.
 
-Spring Data JPA
+### Objetivos específicos
 
-API REST
+- Automatizar el registro y administración de clientes.
+- Gestionar membresías e inscripciones.
+- Controlar los pagos realizados.
+- Registrar las asistencias de los clientes.
+- Administrar entrenadores y rutinas de entrenamiento.
+- Generar reportes administrativos.
+- Almacenar información en una base de datos en la nube.
 
-Maven
+---
 
-Frontend
+## 🛠️ Tecnologías utilizadas
 
-HTML5
+### Backend
 
-CSS3
+- Java
+- Spring Boot
+- Spring Data JPA
+- Hibernate
+- Maven
+- API REST
 
-JavaScript
+### Frontend
 
-Bootstrap
+- HTML5
+- CSS3
+- JavaScript
+- Bootstrap 5
+- Font Awesome
 
-Base de datos
+### Base de datos
 
-PostgreSQL
+- PostgreSQL
+- Neon Cloud
 
-Neon (base de datos en la nube)
+### Herramientas
 
-Herramientas
+- Visual Studio Code
+- Git
+- GitHub
+- Live Server
+- pgAdmin 4
 
-Visual Studio Code
+---
 
-Git y GitHub
+## ✅ Funcionalidades implementadas
 
-Live Server
+### 1. Dashboard
 
-✅ Funcionalidades implementadas
+- Visualización de indicadores administrativos.
+- Conteo de clientes, membresías, pagos y asistencias.
+- Accesos rápidos a los módulos principales.
+- Seguimiento de vencimientos.
+- Visualización de información actualizada.
 
-1. Dashboard
+### 2. Gestión de clientes
 
-Visualización de indicadores administrativos.
+- Registro de nuevos clientes.
+- Listado y búsqueda de clientes.
+- Actualización de información.
+- Eliminación de clientes.
+- Validación de DNI y correo duplicados.
+- Consulta del historial individual de clientes.
 
-Conteo de clientes, membresías, pagos y asistencias.
+### 3. Gestión de membresías
 
-Accesos rápidos a los módulos principales.
+- Registro de planes de membresía.
+- Configuración de precios.
+- Configuración de duración.
+- Actualización de membresías.
+- Gestión de disponibilidad.
 
-Sección de seguimiento de vencimientos.
+### 4. Gestión de inscripciones
 
-2. Gestión de clientes
+- Asignación de membresías a clientes.
+- Registro de fechas de inicio y vencimiento.
+- Control de estados de inscripción.
+- Validación de inscripciones duplicadas.
+- Activación de inscripciones mediante pagos.
 
-Registro de nuevos clientes.
+### 5. Gestión de pagos
 
-Búsqueda y listado de clientes.
+- Registro de pagos de membresías.
+- Selección de métodos de pago.
+- Validación de montos.
+- Cálculo automático del vuelto.
+- Historial de pagos.
+- Activación automática de inscripciones.
+- Consulta de ingresos.
 
-Actualización de información.
+### 6. Control de asistencias
 
-Eliminación de clientes.
+- Registro de asistencias.
+- Validación de membresías activas.
+- Consulta del historial de asistencias.
+- Visualización de indicadores.
 
-Validación de DNI y correo electrónico duplicados.
+### 7. Reportes administrativos
 
-Consulta del historial individual de inscripciones, pagos y asistencias.
+- Consulta de ingresos totales.
+- Resumen de clientes, pagos y asistencias.
+- Reportes por rango de fechas.
+- Validación de fechas.
+- Actualización de indicadores.
 
-3. Gestión de membresías
+### 8. Gestión de entrenadores
 
-Registro y administración de planes.
+- Registro de entrenadores.
+- Listado de entrenadores.
+- Actualización de información.
+- Registro de especialidad y contacto.
+- Activación de entrenadores.
+- Desactivación de entrenadores.
+- Visualización de estados.
 
-Configuración de precios y duración.
+### 9. Gestión de rutinas
 
-Actualización de membresías.
+- Registro de rutinas de entrenamiento.
+- Asignación de rutinas a clientes.
+- Asignación de entrenadores.
+- Registro de nombre y descripción.
+- Fecha automática de asignación.
+- Listado de rutinas.
+- Actualización de rutinas.
+- Desactivación de rutinas.
+- Reactivación de rutinas.
+- Validación de entrenadores activos.
 
-Gestión de disponibilidad.
+---
 
-4. Gestión de inscripciones
+## 🏗️ Arquitectura del sistema
 
-Asignación de membresías a clientes.
+El proyecto utiliza una arquitectura por capas.
 
-Registro de fechas de inicio y vencimiento.
+### Controller
 
-Estados PENDIENTE y ACTIVA.
+Recibe las solicitudes HTTP y expone los endpoints de la API REST.
 
-Validación para evitar inscripciones activas o pendientes duplicadas.
+### Service
 
-Activación de inscripciones mediante el registro de pagos.
+Contiene la lógica de negocio y las validaciones del sistema.
 
-5. Gestión de pagos
+### Repository
 
-Registro de pagos de membresías.
+Gestiona las operaciones de persistencia mediante Spring Data JPA.
 
-Selección de métodos de pago.
+### Model
 
-Validación de montos.
+Representa las entidades del sistema y sus relaciones.
 
-Cálculo automático del vuelto para pagos en efectivo.
+### Frontend
 
-Historial de pagos registrados.
+Proporciona las interfaces HTML y consume los servicios REST mediante JavaScript.
 
-Activación automática de inscripciones después del pago.
+### Base de datos
 
-Consulta del total recaudado.
+PostgreSQL almacena la información en Neon Cloud.
 
-6. Control de asistencias
+---
 
-Registro de asistencias de clientes.
+## 📁 Estructura del proyecto
 
-Validación de membresías activas.
-
-Consulta del historial de asistencias.
-
-Visualización de indicadores de asistencia.
-
-7. Reportes administrativos
-
-Consulta de ingresos totales.
-
-Resumen de clientes, pagos y asistencias.
-
-Reporte de ingresos por rango de fechas.
-
-Validación de fechas incorrectas.
-
-Actualización de indicadores a partir de los registros del sistema.
-
-🚧 Funcionalidades futuras
-
-Las siguientes funcionalidades se consideran posibles ampliaciones del sistema:
-
-Gestión de entrenadores.
-
-Asignación y seguimiento de rutinas.
-
-Mejoras en el sistema de alertas de vencimiento.
-
-Despliegue completo de la aplicación web para acceso público.
-
-📁 Estructura del proyecto
-
+```text
 FitCore/
+│
 ├── backend/
-│   ├── src/main/
-│   │   ├── java/com/fitcore/
-│   │   │   ├── controller/
-│   │   │   ├── model/
-│   │   │   ├── repository/
-│   │   │   └── service/
-│   │   └── resources/
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/com/fitcore/
+│   │   │   │   ├── controller/
+│   │   │   │   ├── model/
+│   │   │   │   ├── repository/
+│   │   │   │   └── service/
+│   │   │   └── resources/
+│   │   └── test/
+│   ├── pom.xml
 │   └── mvnw.cmd
+│
 ├── frontend/
 │   ├── css/
 │   ├── js/
+│   │   ├── app.js
+│   │   ├── clientes.js
+│   │   ├── membresias.js
+│   │   ├── inscripciones.js
+│   │   ├── pagos.js
+│   │   ├── asistencias.js
+│   │   ├── reportes.js
+│   │   ├── entrenadores.js
+│   │   └── rutinas.js
+│   │
 │   ├── index.html
 │   ├── clientes.html
 │   ├── membresias.html
 │   ├── inscripciones.html
 │   ├── pagos.html
-│   └── reportes.html
+│   ├── asistencias.html
+│   ├── reportes.html
+│   ├── entrenadores.html
+│   └── rutinas.html
+│
 ├── .gitignore
 └── README.md
+```
 
-⚙️ Ejecución del proyecto
+---
 
-1. Configurar las variables de entorno
+## 🗄️ Base de datos en la nube
 
-El backend requiere las siguientes variables para conectarse a PostgreSQL en Neon:
+El sistema utiliza PostgreSQL alojado en Neon Cloud.
 
+### Tablas principales
+
+1. clientes
+2. membresias
+3. inscripciones
+4. pagos
+5. asistencias
+6. entrenadores
+7. rutinas
+
+Las entidades están relacionadas mediante claves primarias y foráneas.
+
+La conexión se realiza mediante Spring Data JPA e Hibernate.
+
+---
+
+## ⚙️ Ejecución del proyecto
+
+### 1. Requisitos
+
+- Java compatible con el proyecto.
+- Maven Wrapper incluido.
+- Visual Studio Code.
+- Conexión a internet.
+- Base de datos PostgreSQL en Neon.
+
+### 2. Configurar variables de entorno
+
+El backend requiere:
+
+```text
 DB_URL
 DB_USERNAME
 DB_PASSWORD
+```
 
-Las credenciales deben mantenerse fuera del repositorio.
+Estas variables deben contener las credenciales correspondientes a la base de datos Neon.
 
-2. Ejecutar el backend
+Por seguridad, no deben publicarse en GitHub.
 
-Desde la carpeta backend, ejecutar en Windows:
+### 3. Ejecutar el backend
 
+Abrir una terminal dentro de la carpeta `backend`.
+
+En Windows:
+
+```powershell
 .\mvnw.cmd spring-boot:run
+```
 
-El backend utiliza el puerto 8080 en la configuración de desarrollo.
+El servidor se ejecuta en:
 
-3. Ejecutar el frontend
+```text
+http://localhost:8080
+```
 
-Abrir frontend/index.html utilizando Live Server en Visual Studio Code.
+### 4. Ejecutar el frontend
 
-El frontend consume los servicios REST proporcionados por Spring Boot.
+Abrir la carpeta `frontend` en Visual Studio Code.
 
-🏗️ Arquitectura del sistema
+Ejecutar `index.html` utilizando Live Server.
 
-Titan Fitness Club utiliza una arquitectura por capas:
+El frontend consume los endpoints REST del backend.
 
-Controller: recibe y procesa solicitudes HTTP.
+---
 
-Service: implementa la lógica de negocio y las validaciones.
+## 🔗 API REST
 
-Repository: gestiona el acceso a la base de datos mediante JPA.
+El sistema dispone de los siguientes endpoints principales:
 
-Model: representa las entidades del sistema.
+| Módulo | Endpoint |
+|---|---|
+| Clientes | `/api/clientes` |
+| Membresías | `/api/membresias` |
+| Inscripciones | `/api/inscripciones` |
+| Pagos | `/api/pagos` |
+| Asistencias | `/api/asistencias` |
+| Reportes | `/api/reportes` |
+| Entrenadores | `/api/entrenadores` |
+| Rutinas | `/api/rutinas` |
 
-Frontend: proporciona la interfaz de usuario y consume los servicios REST.
+### Ejemplo: gestión de rutinas
 
-La información se almacena en PostgreSQL mediante el servicio de base de datos en la nube Neon.
+```http
+GET /api/rutinas
+POST /api/rutinas
+PUT /api/rutinas/{id}
+PUT /api/rutinas/{id}/desactivar
+PUT /api/rutinas/{id}/reactivar
+```
 
-🧪 Pruebas funcionales realizadas
+El registro y la actualización de rutinas utilizan parámetros de solicitud.
 
-Se han realizado pruebas manuales de las principales funcionalidades:
+---
 
-Registro y actualización de clientes.
+## 🧪 Pruebas funcionales
 
-Validación de DNI y correos duplicados.
+Se han realizado pruebas manuales de las principales funcionalidades del sistema.
 
-Validación de inscripciones duplicadas.
+### Clientes
 
-Registro de pagos.
+- Registro y actualización.
+- Validación de DNI duplicado.
+- Validación de correo duplicado.
+- Consulta del historial individual.
 
-Rechazo de pagos en efectivo insuficientes.
+### Inscripciones y pagos
 
-Cálculo automático del vuelto.
+- Registro de inscripciones.
+- Validación de duplicados.
+- Registro de pagos.
+- Validación de montos.
+- Cálculo del vuelto.
+- Activación automática de inscripciones.
 
-Activación de inscripciones después del pago.
+### Asistencias y reportes
 
-Consulta de historial de clientes.
+- Registro de asistencias.
+- Consulta de historial.
+- Consulta de ingresos por fechas.
+- Visualización de indicadores.
 
-Registro y consulta de asistencias.
+### Entrenadores
 
-Consulta de ingresos por fechas.
+- Registro de entrenadores.
+- Actualización de información.
+- Desactivación.
+- Reactivación.
 
-Validación de rangos de fechas incorrectos.
+### Rutinas
 
-Visualización de indicadores del Dashboard.
+- Registro de rutinas.
+- Asignación a clientes y entrenadores.
+- Actualización de información.
+- Desactivación.
+- Reactivación.
+- Comprobación de cambios en PostgreSQL Neon.
 
-Navegación mediante accesos rápidos.
+### Pruebas automatizadas
 
-📌 Estado del proyecto
+El proyecto incluye una prueba básica de carga del contexto de Spring Boot.
 
-Sistema en desarrollo con módulos administrativos principales implementados y sometidos a pruebas funcionales manuales.
+Queda pendiente ampliar la cobertura de pruebas unitarias y de integración.
 
-Las funcionalidades de clientes, membresías, inscripciones, pagos, asistencias, reportes y Dashboard están disponibles en el entorno de desarrollo.
+---
 
-🎓 Contexto académico
+## 🔒 Seguridad y buenas prácticas
+
+- Separación del código en capas.
+- Uso de repositorios JPA.
+- Validaciones de reglas de negocio.
+- Gestión de versiones mediante Git.
+- Exclusión de credenciales mediante `.gitignore`.
+- Uso de variables de entorno para conexión a la base de datos.
+
+El sistema se encuentra configurado principalmente para un entorno de desarrollo académico.
+
+Antes de publicarlo en producción se recomienda implementar autenticación, autorización y una configuración CORS restringida.
+
+---
+
+## 🚀 Mejoras futuras
+
+- Implementación de autenticación y roles.
+- Ampliación de pruebas automatizadas.
+- Mejoras en las alertas de vencimiento.
+- Generación de reportes descargables.
+- Optimización de la interfaz para dispositivos móviles.
+- Despliegue público del backend y frontend.
+
+---
+
+## 📌 Estado del proyecto
+
+Los módulos administrativos principales están implementados y disponibles en el entorno de desarrollo.
+
+El sistema integra frontend, backend y base de datos PostgreSQL en Neon Cloud.
+
+Las funcionalidades principales han sido sometidas a pruebas manuales.
+
+El proyecto continúa en etapa de validación y mejora antes de su despliegue público.
+
+---
+
+## 🎓 Contexto académico
 
 Proyecto desarrollado para la carrera de Ingeniería de Sistemas de la Universidad Tecnológica del Perú (UTP).
 
-El sistema aplica principios de Programación Orientada a Objetos, arquitectura por capas, desarrollo de API REST y persistencia de datos en la nube.
+El sistema aplica conceptos de:
 
-🔗 Repositorio
+- Programación Orientada a Objetos.
+- Arquitectura por capas.
+- Desarrollo de API REST.
+- Persistencia de datos.
+- Bases de datos relacionales.
+- Servicios de base de datos en la nube.
+- Control de versiones con Git y GitHub.
+
+---
+
+## 🔗 Repositorio GitHub
 
 https://github.com/Fabian123xd/TitanFitness
