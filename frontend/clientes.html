@@ -17,6 +17,11 @@
     >
 
     <link rel="stylesheet" href="css/style.css">
+    <script>
+    if (sessionStorage.getItem('sesionActiva') !== 'true') {
+        window.location.href = 'login.html';
+    }
+    </script>
 </head>
 
 <body>
