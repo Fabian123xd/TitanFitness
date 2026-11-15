@@ -13,16 +13,9 @@
     <aside class="sidebar" aria-label="Navegación principal">
       <div class="logo"><i class="fa-solid fa-dumbbell"></i><span>Titan Fitness Club</span></div>
       <nav>
-        <div class="nav-section">General</div>
         <a href="index.html" class="active" aria-current="page" title="Dashboard"><i class="fa-solid fa-gauge-high"></i><span>Panel de control</span></a>
-        <div class="nav-section">Administración</div>
         <a href="clientes.html" title="Clientes"><i class="fa-solid fa-users"></i><span>Clientes</span></a>
         <a href="membresias.html" title="Membresías"><i class="fa-solid fa-id-card"></i><span>Membresías</span></a>
-        <a href="inscripciones.html" title="Inscripciones"><i class="fa-solid fa-clipboard-list"></i><span>Inscripciones</span></a>
-        <a href="pagos.html" title="Pagos"><i class="fa-solid fa-money-bill-wave"></i><span>Pagos</span></a>
-        <a href="asistencias.html" title="Asistencias"><i class="fa-solid fa-calendar-check"></i><span>Asistencias</span></a>
-        <a href="reportes.html" title="Reportes"><i class="fa-solid fa-chart-column"></i><span>Reportes</span></a>
-        <div class="nav-section">Próximamente</div>
         <a href="entrenadores.html" title="Entrenadores"><i class="fa-solid fa-user-tie"></i><span>Entrenadores</span></a>
         <a href="rutinas.html" title="Rutinas"><i class="fa-solid fa-dumbbell"></i><span>Rutinas</span></a>
       </nav>
@@ -42,30 +35,19 @@
       <section aria-labelledby="titulo-resumen">
         <div class="dashboard-section-title"><div><h2 id="titulo-resumen">Resumen general</h2><p>Información principal del sistema</p></div></div>
         <div class="row g-3">
-          <div class="col-sm-6 col-xl-3"><div class="dashboard-stat"><div><p class="stat-label">Clientes registrados</p><h3 class="stat-number" id="totalClientes">0</h3><p class="stat-detail">Total de clientes</p></div><span class="stat-icon"><i class="fa-solid fa-users"></i></span></div></div>
-          <div class="col-sm-6 col-xl-3"><div class="dashboard-stat"><div><p class="stat-label">Membresías</p><h3 class="stat-number" id="totalMembresias">0</h3><p class="stat-detail">Planes registrados</p></div><span class="stat-icon"><i class="fa-solid fa-id-card"></i></span></div></div>
-          <div class="col-sm-6 col-xl-3"><div class="dashboard-stat"><div><p class="stat-label">Pagos registrados</p><h3 class="stat-number" id="totalPagos">0</h3><p class="stat-detail">Operaciones registradas</p></div><span class="stat-icon"><i class="fa-solid fa-wallet"></i></span></div></div>
-          <div class="col-sm-6 col-xl-3"><div class="dashboard-stat"><div><p class="stat-label">Asistencias</p><h3 class="stat-number" id="totalAsistencias">0</h3><p class="stat-detail">Ingresos registrados</p></div><span class="stat-icon"><i class="fa-solid fa-calendar-check"></i></span></div></div>
+          <div class="col-12 col-md-6"><div class="dashboard-stat"><div><p class="stat-label">Clientes registrados</p><h3 class="stat-number" id="totalClientes">0</h3><p class="stat-detail">Total de clientes</p></div><span class="stat-icon"><i class="fa-solid fa-users"></i></span></div></div>
+          <div class="col-12 col-md-6"><div class="dashboard-stat"><div><p class="stat-label">Membresías</p><h3 class="stat-number" id="totalMembresias">0</h3><p class="stat-detail">Planes registrados</p></div><span class="stat-icon"><i class="fa-solid fa-id-card"></i></span></div></div>
         </div>
       </section>
 
       <div class="row g-3 mt-2">
-        <section class="col-lg-8" aria-labelledby="titulo-accesos">
+        <section class="col-12" aria-labelledby="titulo-accesos">
           <div class="dashboard-block">
             <div class="dashboard-block-header"><div><h2 id="titulo-accesos">Operaciones frecuentes</h2><p>Accede a las tareas más utilizadas</p></div><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
             <div class="dashboard-shortcuts">
               <a class="dashboard-shortcut" href="clientes.html"><span class="shortcut-icon"><i class="fa-solid fa-user-plus"></i></span><span><strong>Nuevo cliente</strong><small>Gestionar registros</small></span><i class="fa-solid fa-chevron-right shortcut-arrow"></i></a>
               <a class="dashboard-shortcut" href="membresias.html"><span class="shortcut-icon"><i class="fa-solid fa-id-card"></i></span><span><strong>Membresías</strong><small>Consultar planes</small></span><i class="fa-solid fa-chevron-right shortcut-arrow"></i></a>
-              <a class="dashboard-shortcut" href="pagos.html"><span class="shortcut-icon"><i class="fa-solid fa-receipt"></i></span><span><strong>Registrar pago</strong><small>Gestionar cobros</small></span><i class="fa-solid fa-chevron-right shortcut-arrow"></i></a>
-              <a class="dashboard-shortcut" href="asistencias.html"><span class="shortcut-icon"><i class="fa-solid fa-calendar-check"></i></span><span><strong>Asistencia</strong><small>Registrar ingresos</small></span><i class="fa-solid fa-chevron-right shortcut-arrow"></i></a>
             </div>
-          </div>
-        </section>
-        <section class="col-lg-4" aria-labelledby="titulo-informacion">
-          <div class="dashboard-block">
-            <div class="dashboard-block-header"><div><h2 id="titulo-informacion">Información del sistema</h2><p>Titan Fitness Club</p></div><i class="fa-solid fa-circle-info"></i></div>
-            <div class="dashboard-note"><i class="fa-solid fa-shield-halved"></i><div><strong>Panel administrativo</strong><p>Gestiona clientes, membresías, pagos y asistencias desde un solo lugar.</p></div></div>
-            <a href="reportes.html" class="btn btn-outline-secondary btn-sm mt-3">Ver reportes <i class="fa-solid fa-arrow-right ms-1"></i></a>
           </div>
         </section>
       </div>
