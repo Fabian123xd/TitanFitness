@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <script>
+    if (sessionStorage.getItem('sesionActiva') !== 'true') {
+        window.location.href = 'login.html';
+    }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titan Fitness Club | Inscripciones y Vigencias</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+<div class="d-flex">
+
+    <!-- MENÚ LATERAL -->
+    <aside class="sidebar">
+        <div class="logo">
+            <i class="fa-solid fa-dumbbell"></i>
+            <span>Titan Fitness<br>Club</span>
+        </div>
+
+        <nav>
+            <a href="index.html">
+                <i class="fa-solid fa-gauge-high"></i>
+                <span>Panel de control</span>
+            </a>
+
+            <a href="clientes.html">
+                <i class="fa-solid fa-users"></i>
+                <span>Clientes</span>
+            </a>
+
+            <a href="membresias.html">
+                <i class="fa-solid fa-id-card"></i>
+                <span>Planes de Membresía</span>
+            </a>
+
+            <a href="inscripciones.html" class="active">
+                <i class="fa-solid fa-file-signature"></i>
+                <span>Inscripciones</span>
+            </a>
+
+            <a href="entrenadores.html">
+                <i class="fa-solid fa-user-tie"></i>
+                <span>Entrenadores</span>
+            </a>
+
+            <a href="rutinas.html">
+                <i class="fa-solid fa-dumbbell"></i>
+                <span>Rutinas</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">Titan Cobalt Pro · Sistema SaaS</div>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content">
+
+        <header class="dashboard-heading">
+            <div>
+                <div class="dashboard-eyebrow">
+                    <i class="fa-solid fa-file-signature"></i> Administración / Suscripciones y Vigencias
+                </div>
+                <h1>Gestión de Inscripciones y Renovaciones</h1>
+                <p>
+                    Asigna planes de membresía a clientes, activa inscripciones sin depender de pagos, controla alertas de 7 días hábiles
+                    y realiza renovaciones conservando el historial.
+                </p>
+            </div>
+            <div class="dashboard-user">
+                <i class="fa-solid fa-user-shield"></i>
+                <div>
+                    <strong class="nombre-usuario-activo">Administrador</strong>
+                    <small>Control de vigencias</small>
+                </div>
+            </div>
+        </header>
+
+        <div id="mensajeInscripciones" class="alert d-none" role="alert"></div>
+
+        <!-- CONTADORES KPI REALES -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-xl-3">
+                <div class="dashboard-stat stat-emerald">
+                    <div>
+                        <p class="stat-label">Vigentes (ACTIVAS)</p>
+                        <h3 id="cntActivas" class="stat-number text-success">0</h3>
+                        <p class="stat-detail">Membresías en curso</p>
+                    </div>
+                    <span class="stat-icon"><i class="fa-solid fa-circle-check text-success"></i></span>
+                </div>
+            </div>
+
+            <div class="col-6 col-xl-3">
+                <div class="dashboard-stat stat-amber">
+                    <div>
+                        <p class="stat-label">Próximas a vencer</p>
+                        <h3 id="cntProximas" class="stat-number text-warning">0</h3>
+                        <p class="stat-detail">≤ 7 días hábiles restantes</p>
+                    </div>
+                    <span class="stat-icon"><i class="fa-solid fa-bell text-warning"></i></span>
+                </div>
+            </div>
+
+            <div class="col-6 col-xl-3">
+                <div class="dashboard-stat">
+                    <div>
+                        <p class="stat-label">Pendientes de activar</p>
+                        <h3 id="cntPendientes" class="stat-number text-primary">0</h3>
+                        <p class="stat-detail">Listas para activación</p>
+                    </div>
+                    <span class="stat-icon"><i class="fa-solid fa-hourglass-half text-primary"></i></span>
+                </div>
+            </div>
+
+            <div class="col-6 col-xl-3">
+                <div class="dashboard-stat stat-rose">
+                    <div>
+                        <p class="stat-label">Vencidas</p>
+                        <h3 id="cntVencidas" class="stat-number text-danger">0</h3>
+                        <p class="stat-detail">Disponibles para renovar</p>
+                    </div>
+                    <span class="stat-icon"><i class="fa-solid fa-calendar-xmark text-danger"></i></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- FORMULARIO DE ASIGNACIÓN -->
+            <div class="col-lg-4">
+                <div class="panel">
+                    <h4 class="mb-1">
+                        <i class="fa-solid fa-plus-circle text-primary me-2"></i>Asignar membresía
+                    </h4>
+                    <p class="text-muted small mb-3">
+                        Registra una nueva contratación. El vencimiento se calcula automáticamente con la duración del plan.
+                    </p>
+
+                    <form id="formInscripcion">
+                        <div class="mb-3">
+                            <label for="clienteId" class="form-label">Cliente *</label>
+                            <select id="clienteId" class="form-select" required>
+                                <option value="">Seleccione un cliente</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="membresiaId" class="form-label">Plan de membresía (activos) *</label>
+                            <select id="membresiaId" class="form-select" required>
+                                <option value="">Seleccione un plan</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="fechaInicio" class="form-label">Fecha de inicio</label>
+                            <input type="date" id="fechaInicio" class="form-control">
+                            <div class="form-text">Si se deja vacío se toma la fecha actual.</div>
+                        </div>
+
+                        <div id="previewVencimiento" class="preview-vencimiento-box mb-3 d-none"></div>
+
+                        <div class="mb-3">
+                            <label for="observaciones" class="form-label">Observaciones</label>
+                            <textarea id="observaciones" class="form-control" rows="2" maxlength="300" placeholder="Notas opcionales del administrador..."></textarea>
+                        </div>
+
+                        <button type="submit" id="btnRegistrarInscripcion" class="btn btn-primary w-100">
+                            <i class="fa-solid fa-file-signature me-2"></i>Registrar inscripción
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- LISTADO DE INSCRIPCIONES -->
+            <div class="col-lg-8">
+                <div class="panel">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                        <div>
+                            <h4 class="mb-1">Directorio de inscripciones</h4>
+                            <p class="text-muted small mb-0">
+                                Activa inscripciones pendientes, renueva períodos o revisa el historial completo por cliente.
+                            </p>
+                        </div>
+
+                        <div class="d-flex gap-2 flex-wrap">
+                            <select id="filtroEstado" class="form-select form-select-sm" style="width: 185px;">
+                                <option value="TODAS">Todos los estados</option>
+                                <option value="ACTIVA">Vigentes (ACTIVA)</option>
+                                <option value="PROXIMAS">Próximas a vencer (≤7d)</option>
+                                <option value="PENDIENTE">Pendientes</option>
+                                <option value="VENCIDA">Vencidas</option>
+                                <option value="CANCELADA">Canceladas</option>
+                            </select>
+
+                            <div class="client-search" style="width: 230px; height: 38px;">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="buscarInscripcion" placeholder="Buscar cliente o plan...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cliente</th>
+                                    <th>Plan contratado</th>
+                                    <th>Vigencia</th>
+                                    <th>Días hábiles</th>
+                                    <th>Estado</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaInscripciones">
+                                <tr>
+                                    <td colspan="7" class="text-center py-4 text-muted">
+                                        <i class="fa-solid fa-spinner fa-spin me-2"></i>Cargando inscripciones...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="dashboard-bottom">
+            <span>© Titan Fitness Club · Edición Titan Cobalt Pro</span>
+            <span>Inscripciones y Renovaciones</span>
+        </footer>
+    </main>
+</div>
+
+<!-- MODAL HISTORIAL DE MEMBRESÍAS POR CLIENTE -->
+<div class="modal fade" id="modalHistorialCliente" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i>
+                    Historial de Membresías — <span id="tituloClienteHistorial">Cliente</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body" id="cuerpoHistorialCliente">
+                Cargando historial...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/inscripciones.js"></script>
+</body>
+</html>

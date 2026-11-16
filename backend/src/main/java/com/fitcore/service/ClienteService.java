@@ -12,9 +12,15 @@ import org.springframework.web.server.ResponseStatusException;
 public class ClienteService {
 
     private final ClienteRepository clienteRepository;
+    private final com.fitcore.repository.InscripcionRepository inscripcionRepository;
+    private final com.fitcore.repository.RutinaRepository rutinaRepository;
 
-    public ClienteService(ClienteRepository clienteRepository) {
+    public ClienteService(ClienteRepository clienteRepository,
+                          com.fitcore.repository.InscripcionRepository inscripcionRepository,
+                          com.fitcore.repository.RutinaRepository rutinaRepository) {
         this.clienteRepository = clienteRepository;
+        this.inscripcionRepository = inscripcionRepository;
+        this.rutinaRepository = rutinaRepository;
     }
 
     // Listar todos los clientes
@@ -57,7 +63,13 @@ public Cliente registrar(Cliente cliente) {
     public void eliminar(Long id) {
 
         if (!clienteRepository.existsById(id)) {
-            throw new RuntimeException("Cliente no encontrado");
+            throw new com.fitcore.exception.RecursoNoEncontradoException("Cliente", id);
+        }
+
+        // Protege el historial: un cliente con inscripciones o rutinas no se elimina.
+        if (inscripcionRepository.existsByClienteId(id) || rutinaRepository.existsByClienteId(id)) {
+            throw new com.fitcore.exception.ReglaDeNegocioException(
+                    "No se puede eliminar el cliente: tiene inscripciones o rutinas en su historial.");
         }
 
         clienteRepository.deleteById(id);

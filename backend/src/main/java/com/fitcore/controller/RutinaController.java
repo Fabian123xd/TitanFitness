@@ -1,15 +1,21 @@
 package com.fitcore.controller;
 
-import com.fitcore.model.Rutina;
+import com.fitcore.dto.RutinaRequestDTO;
+import com.fitcore.dto.RutinaResponseDTO;
 import com.fitcore.service.RutinaService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * API de rutinas. Una rutina se guarda junto con sus días y ejercicios
+ * (POST/PUT con cuerpo JSON).
+ */
 @RestController
 @RequestMapping("/api/rutinas")
-@CrossOrigin(origins = "*")
 public class RutinaController {
 
     private final RutinaService rutinaService;
@@ -18,98 +24,50 @@ public class RutinaController {
         this.rutinaService = rutinaService;
     }
 
-    // Listar todas las rutinas
     @GetMapping
-    public List<Rutina> listarTodas() {
+    public List<RutinaResponseDTO> listarTodas() {
         return rutinaService.listarTodas();
     }
 
-    // Buscar rutina por ID
+    /** Detalle completo: días de entrenamiento y ejercicios. */
     @GetMapping("/{id}")
-    public ResponseEntity<Rutina> buscarPorId(@PathVariable Long id) {
-        return rutinaService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public RutinaResponseDTO buscarPorId(@PathVariable Long id) {
+        return rutinaService.buscarPorId(id);
     }
 
-    // Rutinas de un cliente
+    /** Historial de rutinas de un cliente. */
     @GetMapping("/cliente/{clienteId}")
-    public List<Rutina> listarPorCliente(
-            @PathVariable Long clienteId) {
-
+    public List<RutinaResponseDTO> listarPorCliente(@PathVariable Long clienteId) {
         return rutinaService.listarPorCliente(clienteId);
     }
 
-    // Rutinas activas de un cliente
     @GetMapping("/cliente/{clienteId}/activas")
-    public List<Rutina> listarActivasPorCliente(
-            @PathVariable Long clienteId) {
-
+    public List<RutinaResponseDTO> listarActivasPorCliente(@PathVariable Long clienteId) {
         return rutinaService.listarActivasPorCliente(clienteId);
     }
 
-    // Rutinas asignadas por un entrenador
     @GetMapping("/entrenador/{entrenadorId}")
-    public List<Rutina> listarPorEntrenador(
-            @PathVariable Long entrenadorId) {
-
+    public List<RutinaResponseDTO> listarPorEntrenador(@PathVariable Long entrenadorId) {
         return rutinaService.listarPorEntrenador(entrenadorId);
     }
 
-    // Registrar rutina
     @PostMapping
-    public ResponseEntity<Rutina> registrar(
-            @RequestParam Long clienteId,
-            @RequestParam Long entrenadorId,
-            @RequestParam String nombre,
-            @RequestParam(required = false) String descripcion) {
-
-        Rutina rutina = rutinaService.registrar(
-                clienteId,
-                entrenadorId,
-                nombre,
-                descripcion
-        );
-
-        return ResponseEntity.ok(rutina);
+    public ResponseEntity<RutinaResponseDTO> registrar(@Valid @RequestBody RutinaRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(rutinaService.registrar(request));
     }
 
-    // Desactivar rutina
-    @PutMapping("/{id}/desactivar")
-    public ResponseEntity<Rutina> desactivar(
-            @PathVariable Long id) {
-
-        return ResponseEntity.ok(
-                rutinaService.desactivar(id)
-        );
-    }
-       // Actualizar rutina
     @PutMapping("/{id}")
-    public ResponseEntity<Rutina> actualizar(
-            @PathVariable Long id,
-            @RequestParam Long clienteId,
-            @RequestParam Long entrenadorId,
-            @RequestParam String nombre,
-            @RequestParam(required = false) String descripcion) {
-
-        return ResponseEntity.ok(
-                rutinaService.actualizar(
-                        id,
-                        clienteId,
-                        entrenadorId,
-                        nombre,
-                        descripcion
-                )
-        );
+    public RutinaResponseDTO actualizar(@PathVariable Long id, @Valid @RequestBody RutinaRequestDTO request) {
+        return rutinaService.actualizar(id, request);
     }
 
-    // Reactivar rutina
-    @PutMapping("/{id}/reactivar")
-    public ResponseEntity<Rutina> reactivar(
-            @PathVariable Long id) {
+    @PutMapping("/{id}/desactivar")
+    public RutinaResponseDTO desactivar(@PathVariable Long id) {
+        return rutinaService.desactivar(id);
+    }
 
-        return ResponseEntity.ok(
-                rutinaService.reactivar(id)
-        );
+    @PutMapping("/{id}/reactivar")
+    public RutinaResponseDTO reactivar(@PathVariable Long id) {
+        return rutinaService.reactivar(id);
     }
 }

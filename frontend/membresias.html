@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -9,19 +8,10 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titan Fitness Club | Catálogo de Planes de Membresía</title>
 
-    <title>Titan Fitness Club | Membresías</title>
-
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
-
-    <link
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-        rel="stylesheet"
-    >
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -48,9 +38,13 @@
 
             <a href="membresias.html" class="active">
                 <i class="fa-solid fa-id-card"></i>
-                <span>Membresías</span>
+                <span>Planes de Membresía</span>
             </a>
 
+            <a href="inscripciones.html">
+                <i class="fa-solid fa-file-signature"></i>
+                <span>Inscripciones</span>
+            </a>
 
             <a href="entrenadores.html">
                 <i class="fa-solid fa-user-tie"></i>
@@ -62,130 +56,119 @@
                 <span>Rutinas</span>
             </a>
         </nav>
+
+        <div class="sidebar-footer">Titan Cobalt Pro · Sistema SaaS</div>
     </aside>
 
     <!-- CONTENIDO PRINCIPAL -->
     <main class="main-content">
 
-        <!-- ENCABEZADO -->
         <div class="topbar">
             <div>
                 <div class="text-uppercase text-muted small fw-semibold mb-2">
-                    Administración / Membresías
+                    <i class="fa-solid fa-layer-group"></i> Administración / Catálogo de Planes
                 </div>
-
-                <h2>Gestión de membresías</h2>
-
+                <h2>Catálogo de Planes de Membresía</h2>
                 <p>
-                    Administra los planes disponibles
-                    en Titan Fitness Club.
+                    Diseña y administra los planes disponibles (duración en días, valor referencial y disponibilidad).
+                    Para contratar o renovar un plan a un socio, utiliza <a href="inscripciones.html" class="fw-bold text-primary text-decoration-none">Gestión de Inscripciones →</a>
                 </p>
             </div>
 
-            <button
-                type="button"
-                class="btn btn-primary"
-                data-bs-toggle="modal"
-                data-bs-target="#modalMembresia"
-                onclick="nuevaMembresia()"
-            >
-                <i class="fa-solid fa-plus me-2"></i>
-                Nueva membresía
-            </button>
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="inscripciones.html" class="btn btn-outline-primary">
+                    <i class="fa-solid fa-file-signature me-2"></i>Asignar a cliente
+                </a>
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalMembresia"
+                    onclick="nuevaMembresia()"
+                >
+                    <i class="fa-solid fa-plus me-2"></i>Nuevo plan
+                </button>
+            </div>
         </div>
 
-        <!-- RESUMEN -->
-        <div class="mb-3">
-            <h5 class="fw-semibold mb-1">
-                Resumen de membresías
-            </h5>
+        <div id="alertaMembresias" class="alert d-none" role="alert"></div>
 
-            <p class="text-muted small mb-0">
-                Información general de los planes del gimnasio
-            </p>
-        </div>
-
+        <!-- KPIs -->
         <div class="row g-3 mb-4">
-
-            <!-- TOTAL DE MEMBRESÍAS -->
-            <div class="col-md-6 col-xl-4">
-                <div class="card-dashboard">
+            <div class="col-12 col-md-4">
+                <div class="dashboard-stat">
                     <div>
-                        <p>Membresías registradas</p>
-
-                        <h3 id="contadorMembresias">-</h3>
-
-                        <small class="text-muted">
-                            Total de planes
-                        </small>
+                        <p class="stat-label">Planes en catálogo</p>
+                        <h3 class="stat-number" id="contadorMembresias">0</h3>
+                        <p class="stat-detail">Total de planes configurados</p>
                     </div>
-
-                    <i class="fa-solid fa-id-card"></i>
+                    <span class="stat-icon"><i class="fa-solid fa-id-card"></i></span>
                 </div>
             </div>
 
-            <!-- MEMBRESÍAS ACTIVAS -->
-            <div class="col-md-6 col-xl-4">
-                <div class="card-dashboard">
+            <div class="col-12 col-md-4">
+                <div class="dashboard-stat stat-emerald">
                     <div>
-                        <p>Membresías activas</p>
-
-                        <h3 id="contadorActivas">-</h3>
-
-                        <small class="text-muted">
-                            Planes disponibles
-                        </small>
+                        <p class="stat-label">Planes habilitados</p>
+                        <h3 class="stat-number text-success" id="contadorActivas">0</h3>
+                        <p class="stat-detail">Elegibles en nuevas inscripciones</p>
                     </div>
-
-                    <i class="fa-solid fa-circle-check"></i>
+                    <span class="stat-icon"><i class="fa-solid fa-circle-check text-success"></i></span>
                 </div>
             </div>
 
+            <div class="col-12 col-md-4">
+                <div class="dashboard-stat stat-slate">
+                    <div>
+                        <p class="stat-label">Planes inactivos</p>
+                        <h3 class="stat-number text-secondary" id="contadorInactivas">0</h3>
+                        <p class="stat-detail">Pausados para nuevas ventas</p>
+                    </div>
+                    <span class="stat-icon"><i class="fa-solid fa-ban text-secondary"></i></span>
+                </div>
+            </div>
         </div>
 
-        <!-- DIRECTORIO DE MEMBRESÍAS -->
+        <!-- CATÁLOGO VISUAL DE TARJETAS -->
+        <div class="mb-2 d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold mb-2" style="font-size: 15px; color: var(--navy-900);">
+                <i class="fa-solid fa-grip text-primary me-2"></i>Vista comercial de planes
+            </h5>
+        </div>
+        <div id="catalogoVisualPlanes" class="catalog-grid"></div>
+
+        <!-- TABLA DETALLADA -->
         <section class="panel">
-
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-
                 <div>
-                    <h4 class="mb-1">
-                        Planes de membresía
-                    </h4>
-
+                    <h4 class="mb-1">Directorio técnico de planes</h4>
                     <p class="text-muted mb-0">
-                        Consulta y administra los planes
-                        disponibles del gimnasio.
+                        El estado del plan controla únicamente si puede seleccionarse en nuevas contrataciones (no altera inscripciones vigentes).
                     </p>
                 </div>
 
-                <!-- BUSCADOR -->
                 <div class="client-search">
                     <i class="fa-solid fa-magnifying-glass"></i>
-
                     <input
                         type="text"
                         id="buscarMembresia"
-                        placeholder="Buscar membresía..."
+                        placeholder="Buscar plan por nombre..."
                         autocomplete="off"
                         aria-label="Buscar membresía"
                     >
                 </div>
-
             </div>
 
-            <!-- TABLA -->
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
-
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Nombre</th>
+                            <th>Nombre del plan</th>
                             <th>Descripción</th>
                             <th>Duración</th>
-                            <th>Precio</th>
-                            <th>Estado</th>
+                            <th>Precio referencial</th>
+                            <th>Disponibilidad del plan</th>
                             <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
@@ -194,189 +177,91 @@
                         <tr>
                             <td colspan="7" class="text-center py-4 text-muted">
                                 <i class="fa-solid fa-spinner fa-spin me-2"></i>
-                                Cargando membresías...
+                                Cargando planes...
                             </td>
                         </tr>
                     </tbody>
-
                 </table>
             </div>
-
         </section>
 
+        <footer class="dashboard-bottom">
+            <span>© Titan Fitness Club · Edición Titan Cobalt Pro</span>
+            <span>Catálogo de Planes de Membresía</span>
+        </footer>
     </main>
 </div>
 
 <!-- MODAL: REGISTRAR / EDITAR MEMBRESÍA -->
-<div
-    class="modal fade"
-    id="modalMembresia"
-    tabindex="-1"
-    aria-labelledby="tituloModalMembresia"
-    aria-hidden="true"
->
+<div class="modal fade" id="modalMembresia" tabindex="-1" aria-labelledby="tituloModalMembresia" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
-
-            <!-- ENCABEZADO -->
             <div class="modal-header">
                 <div>
-                    <h5 class="modal-title" id="tituloModalMembresia">
-                        Registrar nueva membresía
-                    </h5>
-
-                    <small class="text-muted">
-                        Complete los datos del plan
-                    </small>
+                    <h5 class="modal-title" id="tituloModalMembresia">Registrar nuevo plan de membresía</h5>
+                    <small class="text-muted">Define nombre, duración en días, valor referencial y disponibilidad</small>
                 </div>
-
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Cerrar"
-                ></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
 
-            <!-- FORMULARIO -->
             <form id="formMembresia">
-
                 <div class="modal-body">
                     <div class="row g-3">
-
-                        <!-- NOMBRE -->
                         <div class="col-12">
-                            <label for="nombre" class="form-label">
-                                Nombre de la membresía
-                            </label>
-
-                            <input
-                                type="text"
-                                id="nombre"
-                                class="form-control"
-                                placeholder="Ej. Mensual"
-                                required
-                            >
+                            <label for="nombre" class="form-label">Nombre del plan</label>
+                            <input type="text" id="nombre" class="form-control" placeholder="Ej. Plan Trimestral Pro" required>
                         </div>
 
-                        <!-- DESCRIPCIÓN -->
                         <div class="col-12">
-                            <label for="descripcion" class="form-label">
-                                Descripción
-                            </label>
-
-                            <textarea
-                                id="descripcion"
-                                class="form-control"
-                                rows="3"
-                                placeholder="Descripción del plan..."
-                            ></textarea>
+                            <label for="descripcion" class="form-label">Descripción y beneficios</label>
+                            <textarea id="descripcion" class="form-control" rows="3" placeholder="Acceso libre a sala de musculación, evaluación física..."></textarea>
                         </div>
 
-                        <!-- DURACIÓN -->
                         <div class="col-md-6">
-                            <label for="duracionDias" class="form-label">
-                                Duración
-                            </label>
-
+                            <label for="duracionDias" class="form-label">Duración del período</label>
                             <div class="input-group">
-                                <input
-                                    type="number"
-                                    id="duracionDias"
-                                    class="form-control"
-                                    min="1"
-                                    placeholder="30"
-                                    required
-                                >
-
-                                <span class="input-group-text">
-                                    días
-                                </span>
+                                <input type="number" id="duracionDias" class="form-control" min="1" placeholder="30" required>
+                                <span class="input-group-text">días calendario</span>
                             </div>
                         </div>
 
-                        <!-- PRECIO -->
                         <div class="col-md-6">
-                            <label for="precio" class="form-label">
-                                Precio
-                            </label>
-
+                            <label for="precio" class="form-label">Precio referencial</label>
                             <div class="input-group">
-                                <span class="input-group-text">
-                                    S/
-                                </span>
-
-                                <input
-                                    type="number"
-                                    id="precio"
-                                    class="form-control"
-                                    min="0"
-                                    step="0.01"
-                                    placeholder="80.00"
-                                    required
-                                >
+                                <span class="input-group-text">S/</span>
+                                <input type="number" id="precio" class="form-control" min="0.01" step="0.01" placeholder="80.00" required>
                             </div>
                         </div>
 
-                        <!-- ESTADO -->
                         <div class="col-12 mt-4">
                             <div class="membership-status">
-
                                 <div>
-                                    <strong>
-                                        Estado de la membresía
-                                    </strong>
-
+                                    <strong>Plan disponible para nuevas inscripciones</strong>
                                     <p class="mb-0">
-                                        Permitir que este plan
-                                        pueda utilizarse en nuevas inscripciones.
+                                        Si se desactiva, no podrá contratarse en nuevas inscripciones pero las vigentes seguirán activas.
                                     </p>
                                 </div>
-
                                 <div class="form-check form-switch">
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        role="switch"
-                                        id="activo"
-                                        checked
-                                    >
+                                    <input class="form-check-input" type="checkbox" role="switch" id="activo" checked>
                                 </div>
-
                             </div>
                         </div>
-
                     </div>
                 </div>
 
-                <!-- BOTONES -->
                 <div class="modal-footer">
-                    <button
-                        type="button"
-                        class="btn btn-light"
-                        data-bs-dismiss="modal"
-                    >
-                        Cancelar
-                    </button>
-
-                    <button
-                        type="submit"
-                        class="btn btn-primary"
-                    >
-                        <i class="fa-solid fa-floppy-disk me-2"></i>
-                        Guardar membresía
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-floppy-disk me-2"></i>Guardar plan
                     </button>
                 </div>
-
             </form>
-
         </div>
     </div>
 </div>
 
-<!-- SCRIPTS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/auth.js"></script>
 <script src="js/membresias.js"></script>
-
 </body>
 </html>

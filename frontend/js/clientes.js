@@ -1,82 +1,88 @@
-const API_CLIENTES = "http://localhost:8080/api/clientes";
+const API_CLIENTES = ENDPOINTS.CLIENTES;
+const API_INSCRIPCIONES = ENDPOINTS.INSCRIPCIONES;
+const API_RUTINAS = ENDPOINTS.RUTINAS;
+
+function mostrarAlertaCliente(mensaje, tipo = "success") {
+    mostrarAlertaUI("alertaClientes", mensaje, tipo, 4500);
+}
 
 async function cargarClientes() {
-
     const tabla = document.getElementById("tablaClientes");
 
     try {
-
         const respuesta = await fetch(API_CLIENTES);
-
         if (!respuesta.ok) {
             throw new Error("No se pudieron obtener los clientes");
         }
 
         const clientes = await respuesta.json();
-        // Actualizar contador de clientes
-const contador = document.getElementById("contadorClientes");
 
-if (contador) {
-    contador.textContent = clientes.length;
-}
+        const contador = document.getElementById("contadorClientes");
+        const contadorCorreo = document.getElementById("contadorClientesCorreo");
+        const contadorTelefono = document.getElementById("contadorClientesTelefono");
+
+        if (contador) contador.textContent = clientes.length;
+        if (contadorCorreo) {
+            contadorCorreo.textContent = clientes.filter(c => c.correo && String(c.correo).trim() !== "").length;
+        }
+        if (contadorTelefono) {
+            contadorTelefono.textContent = clientes.filter(c => c.telefono && String(c.telefono).trim() !== "").length;
+        }
 
         tabla.innerHTML = "";
 
         if (clientes.length === 0) {
-
             tabla.innerHTML = `
                 <tr>
-                    <td colspan="8" class="text-center">
+                    <td colspan="8" class="text-center text-muted py-4">
                         No hay clientes registrados.
                     </td>
                 </tr>
             `;
-
             return;
         }
 
         clientes.forEach(cliente => {
-
             const fila = document.createElement("tr");
-
+            const iniciales = obtenerIniciales(`${cliente.nombres || ""} ${cliente.apellidos || ""}`);
             fila.innerHTML = `
-                <td>${cliente.id}</td>
-                <td>${cliente.nombres}</td>
-                <td>${cliente.apellidos}</td>
-                <td>${cliente.dni}</td>
-                <td>${cliente.telefono ?? "-"}</td>
-                <td>${cliente.correo ?? "-"}</td>
-                <td>${cliente.fechaRegistro ?? "-"}</td>
-
+                <td class="text-muted fw-semibold">#${cliente.id}</td>
                 <td>
-                <button class="btn btn-sm btn-info text-white me-1"
-        onclick="verHistorial(${cliente.id})"
-        title="Ver historial">
-    <i class="fa-solid fa-clock-rotate-left"></i>
-</button>
-                    <button class="btn btn-sm btn-warning"
-        onclick="editarCliente(${cliente.id})">
-        
-    <i class="fa-solid fa-pen"></i>
-</button>
-
-                  <button class="btn btn-sm btn-danger"
-        onclick="eliminarCliente(${cliente.id})">
-    <i class="fa-solid fa-trash"></i>
-</button>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="avatar-chip">${iniciales}</span>
+                        <span class="fw-semibold" style="color: var(--navy-900);">${cliente.nombres}</span>
+                    </div>
+                </td>
+                <td class="fw-medium">${cliente.apellidos}</td>
+                <td><span class="badge bg-primary">${cliente.dni}</span></td>
+                <td>${cliente.telefono || "-"}</td>
+                <td>${cliente.correo || "-"}</td>
+                <td>${cliente.fechaRegistro || "-"}</td>
+                <td class="text-center text-nowrap">
+                    <button class="btn btn-sm btn-info text-white me-1"
+                            onclick="verHistorial(${cliente.id})"
+                            title="Ver historial de membresías y rutinas">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </button>
+                    <button class="btn btn-sm btn-warning me-1"
+                            onclick="editarCliente(${cliente.id})"
+                            title="Editar cliente">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger"
+                            onclick="eliminarCliente(${cliente.id})"
+                            title="Eliminar cliente">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
                 </td>
             `;
-
             tabla.appendChild(fila);
         });
-
     } catch (error) {
-
         console.error(error);
-
         tabla.innerHTML = `
             <tr>
-                <td colspan="8" class="text-center text-danger">
+                <td colspan="8" class="text-center text-danger py-4">
                     Error al cargar los clientes.
                 </td>
             </tr>
@@ -85,352 +91,226 @@ if (contador) {
 }
 
 document.addEventListener("DOMContentLoaded", cargarClientes);
+
 const formCliente = document.getElementById("formCliente");
 
-formCliente.addEventListener("submit", async function(event) {
-
+formCliente.addEventListener("submit", async function (event) {
     event.preventDefault();
 
+    const correoVal = document.getElementById("correo").value.trim();
     const cliente = {
         nombres: document.getElementById("nombres").value.trim(),
         apellidos: document.getElementById("apellidos").value.trim(),
         dni: document.getElementById("dni").value.trim(),
-        telefono: document.getElementById("telefono").value.trim(),
-        correo: document.getElementById("correo").value.trim()
+        telefono: document.getElementById("telefono").value.trim() || null,
+        correo: correoVal || null
     };
 
-    // Si existe este ID, estamos editando
     const clienteId = formCliente.dataset.clienteId;
-
-    const url = clienteId
-        ? `${API_CLIENTES}/${clienteId}`
-        : API_CLIENTES;
-
+    const url = clienteId ? `${API_CLIENTES}/${clienteId}` : API_CLIENTES;
     const metodo = clienteId ? "PUT" : "POST";
 
     try {
-
         const respuesta = await fetch(url, {
             method: metodo,
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(cliente)
         });
 
-       if (!respuesta.ok) {
-    if (respuesta.status === 409) {
-        throw new Error("El DNI o correo ya se encuentra registrado");
-    }
-
-    throw new Error("No se pudo guardar el cliente");
-}
+        if (!respuesta.ok) {
+            const msg = await extraerMensajeError(respuesta, "No se pudo guardar el cliente");
+            throw new Error(msg);
+        }
 
         formCliente.reset();
-
-        // Quitar modo edición
         delete formCliente.dataset.clienteId;
 
-        document.querySelector("#modalCliente .modal-title").textContent =
-            "Registrar nuevo cliente";
-
+        document.querySelector("#modalCliente .modal-title").textContent = "Registrar nuevo cliente";
         const modalElemento = document.getElementById("modalCliente");
         const modal = bootstrap.Modal.getInstance(modalElemento);
-
-        modal.hide();
+        if (modal) modal.hide();
 
         await cargarClientes();
-
-        alert(
-            clienteId
-                ? "Cliente actualizado correctamente"
-                : "Cliente registrado correctamente"
+        mostrarAlertaCliente(
+            clienteId ? "Cliente actualizado correctamente." : "Cliente registrado correctamente.",
+            "success"
         );
-
     } catch (error) {
-    console.error(error);
-    alert(error.message);
-}
+        console.error(error);
+        mostrarAlertaCliente(error.message, "danger");
+    }
 });
+
 function nuevoCliente() {
-
     formCliente.reset();
-
     delete formCliente.dataset.clienteId;
-
-    document.querySelector("#modalCliente .modal-title").textContent =
-        "Registrar nuevo cliente";
+    document.querySelector("#modalCliente .modal-title").textContent = "Registrar nuevo cliente";
 }
-async function editarCliente(id) {
 
+async function editarCliente(id) {
     try {
         const respuesta = await fetch(`${API_CLIENTES}/${id}`);
-
         if (!respuesta.ok) {
             throw new Error("No se pudo obtener el cliente");
         }
 
         const cliente = await respuesta.json();
-
         document.getElementById("nombres").value = cliente.nombres;
         document.getElementById("apellidos").value = cliente.apellidos;
         document.getElementById("dni").value = cliente.dni;
         document.getElementById("telefono").value = cliente.telefono ?? "";
         document.getElementById("correo").value = cliente.correo ?? "";
 
-        // Guardar el ID del cliente que estamos editando
         formCliente.dataset.clienteId = cliente.id;
+        document.querySelector("#modalCliente .modal-title").textContent = "Editar cliente";
 
-        document.querySelector("#modalCliente .modal-title").textContent =
-            "Editar cliente";
-
-        const modal = new bootstrap.Modal(
-            document.getElementById("modalCliente")
-        );
-
+        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("modalCliente"));
         modal.show();
-
     } catch (error) {
         console.error(error);
-        alert("Error al cargar el cliente");
+        mostrarAlertaCliente("Error al cargar el cliente", "danger");
     }
 }
+
 async function eliminarCliente(id) {
-
-    const confirmar = confirm(
-        "¿Estás seguro de que deseas eliminar este cliente?"
-    );
-
-    if (!confirmar) {
+    if (!confirm("¿Estás seguro de que deseas eliminar este cliente?")) {
         return;
     }
 
     try {
-
-        const respuesta = await fetch(`${API_CLIENTES}/${id}`, {
-            method: "DELETE"
-        });
-
+        const respuesta = await fetch(`${API_CLIENTES}/${id}`, { method: "DELETE" });
         if (!respuesta.ok) {
-            throw new Error("No se pudo eliminar el cliente");
+            const msg = await extraerMensajeError(
+                respuesta,
+                "No se puede eliminar un cliente con inscripciones o rutinas en su historial."
+            );
+            throw new Error(msg);
         }
 
         await cargarClientes();
-
-        alert("Cliente eliminado correctamente");
-
+        mostrarAlertaCliente("Cliente eliminado correctamente.", "success");
     } catch (error) {
-
         console.error(error);
-        alert("Error al eliminar el cliente");
+        mostrarAlertaCliente(error.message, "danger");
     }
 }
-// ================================
-// BUSCADOR DE CLIENTES
-// ================================
 
 const buscarCliente = document.getElementById("buscarCliente");
-
 if (buscarCliente) {
-
-    buscarCliente.addEventListener("input", function() {
-
-        const texto = this.value
-            .toLowerCase()
-            .trim();
-
-        const filas = document.querySelectorAll(
-            "#tablaClientes tr"
-        );
-
+    buscarCliente.addEventListener("input", function () {
+        const texto = this.value.toLowerCase().trim();
+        const filas = document.querySelectorAll("#tablaClientes tr");
         filas.forEach(fila => {
-
-            const contenido =
-                fila.textContent.toLowerCase();
-
-            fila.style.display =
-                contenido.includes(texto)
-                    ? ""
-                    : "none";
+            const contenido = fila.textContent.toLowerCase();
+            fila.style.display = contenido.includes(texto) ? "" : "none";
         });
-
     });
 }
-// ================================
-// HISTORIAL DEL CLIENTE
-// ================================
+
+function badgeEstadoInscripcion(estado) {
+    switch (estado) {
+        case "ACTIVA":
+            return '<span class="badge bg-success">ACTIVA</span>';
+        case "PENDIENTE":
+            return '<span class="badge bg-primary">PENDIENTE</span>';
+        case "VENCIDA":
+            return '<span class="badge bg-danger">VENCIDA</span>';
+        case "CANCELADA":
+            return '<span class="badge bg-secondary">CANCELADA</span>';
+        default:
+            return `<span class="badge bg-secondary">${estado || "-"}</span>`;
+    }
+}
 
 async function verHistorial(id) {
+    const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("modalHistorial"));
 
-    const modal = new bootstrap.Modal(
-        document.getElementById("modalHistorial")
-    );
-
-    document.getElementById("nombreClienteHistorial").textContent =
-        "Cargando cliente...";
-
+    document.getElementById("nombreClienteHistorial").textContent = "Cargando cliente...";
     document.getElementById("dniClienteHistorial").textContent = "";
-
-    document.getElementById("historialInscripciones").textContent =
-        "Cargando...";
-
-    document.getElementById("historialPagos").textContent =
-        "Cargando...";
-
-    document.getElementById("historialAsistencias").textContent =
-        "Cargando...";
+    document.getElementById("historialInscripciones").innerHTML = '<div class="text-muted">Cargando inscripciones...</div>';
+    document.getElementById("historialRutinas").innerHTML = '<div class="text-muted">Cargando rutinas...</div>';
+    document.getElementById("linkInscribirCliente").href = `inscripciones.html?clienteId=${id}`;
+    document.getElementById("linkRutinaCliente").href = `rutinas.html?clienteId=${id}`;
 
     modal.show();
 
     try {
+        const [resCliente, resInscripciones, resRutinas] = await Promise.all([
+            fetch(`${API_CLIENTES}/${id}`),
+            fetch(`${API_INSCRIPCIONES}/cliente/${id}`),
+            fetch(`${API_RUTINAS}/cliente/${id}`)
+        ]);
 
-        const respuesta = await fetch(`${API_CLIENTES}/${id}`);
-
-        if (!respuesta.ok) {
-            throw new Error("No se pudo obtener el cliente");
-        }
-
-        const cliente = await respuesta.json();
+        if (!resCliente.ok) throw new Error("No se pudo obtener el cliente");
+        const cliente = await resCliente.json();
 
         document.getElementById("nombreClienteHistorial").textContent =
             `${cliente.nombres} ${cliente.apellidos}`;
-
         document.getElementById("dniClienteHistorial").textContent =
-            `DNI: ${cliente.dni}`;
-            // Cargar inscripciones del cliente
-const respuestaInscripciones = await fetch(
-    `http://localhost:8080/api/inscripciones/cliente/${id}`
-);
+            `DNI: ${cliente.dni} · Teléfono: ${cliente.telefono || "-"} · Correo: ${cliente.correo || "-"}`;
 
-if (!respuestaInscripciones.ok) {
-    throw new Error("No se pudieron cargar las inscripciones");
-}
+        const inscripciones = resInscripciones.ok ? await resInscripciones.json() : [];
+        const contenedorIns = document.getElementById("historialInscripciones");
+        const badgeIns = document.getElementById("resumenHistorialIns");
+        if (badgeIns) badgeIns.textContent = `${inscripciones.length} registro(s)`;
 
-const inscripciones = await respuestaInscripciones.json();
+        if (inscripciones.length === 0) {
+            contenedorIns.innerHTML = '<div class="alert alert-light border mb-0">Este cliente aún no registra inscripciones de membresía.</div>';
+        } else {
+            contenedorIns.innerHTML = "";
+            inscripciones.forEach(ins => {
+                const div = document.createElement("div");
+                div.className = "border rounded-3 p-3 mb-2 bg-white shadow-xs";
+                const plan = ins.nombreMembresia || (ins.membresia ? ins.membresia.nombre : "Plan");
+                const alerta = ins.proximaAVencer
+                    ? `<span class="badge bg-warning text-dark ms-1">Vence en ${ins.diasHabilesRestantes} día(s) hábiles</span>`
+                    : "";
+                div.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <strong>#${ins.id} · ${plan}</strong>
+                        <div>${badgeEstadoInscripcion(ins.estado)} ${alerta}</div>
+                    </div>
+                    <div class="small text-muted mt-1">
+                        Inicio: <strong>${ins.fechaInicio}</strong> · Vencimiento: <strong>${ins.fechaFin}</strong>
+                        ${ins.observaciones ? `<div class="mt-1"><em>Nota: ${ins.observaciones}</em></div>` : ""}
+                    </div>
+                `;
+                contenedorIns.appendChild(div);
+            });
+        }
 
-const contenedor = document.getElementById(
-    "historialInscripciones"
-);
+        const rutinas = resRutinas.ok ? await resRutinas.json() : [];
+        const contenedorRut = document.getElementById("historialRutinas");
+        const badgeRut = document.getElementById("resumenHistorialRut");
+        if (badgeRut) badgeRut.textContent = `${rutinas.length} rutina(s)`;
 
-if (inscripciones.length === 0) {
-    contenedor.textContent = "Este cliente no tiene inscripciones.";
-} else {
-    contenedor.innerHTML = "";
-
-    inscripciones.forEach(inscripcion => {
-        const elemento = document.createElement("div");
-        elemento.className = "border rounded p-3 mb-2";
-
-        elemento.textContent =
-            `Inscripción #${inscripcion.id} | ` +
-            `Inicio: ${inscripcion.fechaInicio} | ` +
-            `Vencimiento: ${inscripcion.fechaFin} | ` +
-            `Estado: ${inscripcion.estado}`;
-
-        contenedor.appendChild(elemento);
-    });
-}
-// ================================
-// HISTORIAL DE PAGOS
-// ================================
-
-const respuestaPagos = await fetch(
-    `http://localhost:8080/api/pagos/cliente/${id}`
-);
-
-if (!respuestaPagos.ok) {
-    throw new Error("No se pudieron cargar los pagos");
-}
-
-const pagos = await respuestaPagos.json();
-
-const contenedorPagos = document.getElementById(
-    "historialPagos"
-);
-
-contenedorPagos.innerHTML = "";
-
-if (pagos.length === 0) {
-
-    contenedorPagos.textContent =
-        "Este cliente no tiene pagos registrados.";
-
-} else {
-
-    pagos.forEach(pago => {
-
-        const elemento = document.createElement("div");
-
-        elemento.className = "border rounded p-3 mb-2";
-
-        elemento.textContent =
-            `Pago #${pago.id} | ` +
-            `Monto: S/ ${Number(pago.monto).toFixed(2)} | ` +
-            `Método: ${pago.metodoPago} | ` +
-            `Estado: ${pago.estado}`;
-
-        contenedorPagos.appendChild(elemento);
-    });
-}
-// ================================
-// HISTORIAL DE ASISTENCIAS
-// ================================
-
-const respuestaAsistencias = await fetch(
-    `http://localhost:8080/api/asistencias/cliente/${id}`
-);
-
-if (!respuestaAsistencias.ok) {
-    throw new Error("No se pudieron cargar las asistencias");
-}
-
-const asistencias = await respuestaAsistencias.json();
-console.log("Asistencias del cliente:", asistencias);
-
-const contenedorAsistencias = document.getElementById(
-    "historialAsistencias"
-);
-
-contenedorAsistencias.innerHTML = "";
-
-if (asistencias.length === 0) {
-
-    contenedorAsistencias.textContent =
-        "Este cliente no tiene asistencias registradas.";
-
-} else {
-
-    asistencias.forEach(asistencia => {
-
-        const elemento = document.createElement("div");
-
-        elemento.className = "border rounded p-3 mb-2";
-
-      const fechaHora = new Date(asistencia.fechaHora);
-
-const fecha = fechaHora.toLocaleDateString("es-PE");
-
-const hora = fechaHora.toLocaleTimeString("es-PE", {
-    hour: "2-digit",
-    minute: "2-digit"
-});
-
-elemento.textContent =
-    `Asistencia #${asistencia.id} | ` +
-    `Fecha: ${fecha} | ` +
-    `Hora: ${hora} | ` +
-    `Estado: ${asistencia.estado}`;
-        contenedorAsistencias.appendChild(elemento);
-    });
-}
-
-
-
+        if (rutinas.length === 0) {
+            contenedorRut.innerHTML = '<div class="alert alert-light border mb-0">Este cliente aún no tiene rutinas asignadas.</div>';
+        } else {
+            contenedorRut.innerHTML = "";
+            rutinas.forEach(rut => {
+                const div = document.createElement("div");
+                div.className = "border rounded-3 p-3 mb-2 bg-white shadow-xs";
+                const estadoBadge = rut.activa
+                    ? '<span class="badge bg-success">Activa</span>'
+                    : '<span class="badge bg-secondary">Inactiva</span>';
+                div.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <strong>#${rut.id} · ${rut.nombre}</strong>
+                        ${estadoBadge}
+                    </div>
+                    <div class="small text-primary fw-semibold mt-1">Objetivo: ${rut.objetivo || "General"}</div>
+                    <div class="small text-muted mt-1">
+                        Entrenador: <strong>${rut.nombreEntrenador || "-"}</strong> ·
+                        Asignada: ${rut.fechaAsignacion || "-"} ·
+                        ${rut.totalDias ?? 0} día(s) / ${rut.totalEjercicios ?? 0} ejercicio(s)
+                    </div>
+                `;
+                contenedorRut.appendChild(div);
+            });
+        }
     } catch (error) {
-
         console.error(error);
-
-        document.getElementById("nombreClienteHistorial").textContent =
-            "Error al cargar el cliente";
+        document.getElementById("nombreClienteHistorial").textContent = "Error al cargar el historial";
     }
 }

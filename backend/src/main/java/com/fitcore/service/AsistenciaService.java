@@ -1,6 +1,7 @@
 package com.fitcore.service;
 
 import com.fitcore.model.Asistencia;
+import com.fitcore.model.EstadoInscripcion;
 import com.fitcore.model.Inscripcion;
 import com.fitcore.repository.AsistenciaRepository;
 import com.fitcore.repository.InscripcionRepository;
@@ -61,8 +62,8 @@ if (LocalDate.now().isBefore(inscripcion.getFechaInicio())) {
 // Validar fecha de vencimiento
 if (LocalDate.now().isAfter(inscripcion.getFechaFin())) {
 
-    if (!"VENCIDA".equalsIgnoreCase(inscripcion.getEstado())) {
-        inscripcion.setEstado("VENCIDA");
+    if (inscripcion.getEstado() != EstadoInscripcion.VENCIDA) {
+        inscripcion.setEstado(EstadoInscripcion.VENCIDA);
         inscripcionRepository.save(inscripcion);
     }
 
@@ -71,7 +72,7 @@ if (LocalDate.now().isAfter(inscripcion.getFechaFin())) {
 }
 
 // Validar que la inscripción esté activa
-if (!"ACTIVA".equalsIgnoreCase(inscripcion.getEstado())) {
+if (inscripcion.getEstado() != EstadoInscripcion.ACTIVA) {
     throw new IllegalStateException(
             "Ingreso denegado: la inscripción no está activa");
 }

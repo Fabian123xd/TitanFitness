@@ -8,9 +8,17 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * @deprecated Módulo de pagos fuera del alcance del proyecto (Etapa 3).
+ * La activación de inscripciones se realiza ahora mediante
+ * PUT /api/inscripciones/{id}/activar (sin dependencia de pagos).
+ *
+ * Esta clase se mantiene para no perder el historial de código.
+ * No usar en el frontend. No hacer merge a main.
+ */
+@Deprecated(since = "Etapa3", forRemoval = false)
 @RestController
 @RequestMapping("/api/pagos")
-@CrossOrigin(origins = "*")
 public class PagoController {
 
     private final PagoService pagoService;

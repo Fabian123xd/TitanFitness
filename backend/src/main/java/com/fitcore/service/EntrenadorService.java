@@ -38,7 +38,7 @@ public class EntrenadorService {
                 !entrenador.getCorreo().isBlank() &&
                 entrenadorRepository.existsByCorreo(entrenador.getCorreo())) {
 
-            throw new RuntimeException(
+            throw new com.fitcore.exception.ReglaDeNegocioException(
                     "Ya existe un entrenador con ese correo");
         }
 
@@ -51,7 +51,7 @@ public class EntrenadorService {
 
         Entrenador entrenador = entrenadorRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Entrenador no encontrado"));
+                        new com.fitcore.exception.RecursoNoEncontradoException("Entrenador", id));
 
         entrenador.setNombres(datos.getNombres());
         entrenador.setApellidos(datos.getApellidos());
@@ -71,7 +71,7 @@ public class EntrenadorService {
 
         Entrenador entrenador = entrenadorRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Entrenador no encontrado"));
+                        new com.fitcore.exception.RecursoNoEncontradoException("Entrenador", id));
 
         entrenador.setActivo(false);
 

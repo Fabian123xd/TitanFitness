@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Titan Fitness Club | Panel de control</title>
+  <title>Titan Fitness Club | Panel de Control Ejecutivo</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-    <script>
+  <script>
     if (sessionStorage.getItem('sesionActiva') !== 'true') {
       window.location.href = 'login.html';
     }
@@ -16,54 +16,243 @@
 <body>
   <div class="d-flex">
     <aside class="sidebar" aria-label="Navegación principal">
-      <div class="logo"><i class="fa-solid fa-dumbbell"></i><span>Titan Fitness Club</span></div>
+      <div class="logo"><i class="fa-solid fa-dumbbell"></i><span>Titan Fitness<br>Club</span></div>
       <nav>
         <a href="index.html" class="active" aria-current="page" title="Dashboard"><i class="fa-solid fa-gauge-high"></i><span>Panel de control</span></a>
         <a href="clientes.html" title="Clientes"><i class="fa-solid fa-users"></i><span>Clientes</span></a>
-        <a href="membresias.html" title="Membresías"><i class="fa-solid fa-id-card"></i><span>Membresías</span></a>
+        <a href="membresias.html" title="Membresías"><i class="fa-solid fa-id-card"></i><span>Planes de Membresía</span></a>
+        <a href="inscripciones.html" title="Inscripciones"><i class="fa-solid fa-file-signature"></i><span>Inscripciones</span></a>
         <a href="entrenadores.html" title="Entrenadores"><i class="fa-solid fa-user-tie"></i><span>Entrenadores</span></a>
         <a href="rutinas.html" title="Rutinas"><i class="fa-solid fa-dumbbell"></i><span>Rutinas</span></a>
       </nav>
-      <div class="sidebar-footer">Sistema de gestión · Titan Fitness</div>
+      <div class="sidebar-footer">Titan Cobalt Pro · Sistema SaaS</div>
     </aside>
 
     <main class="main-content">
       <header class="dashboard-heading">
         <div>
-          <div class="dashboard-eyebrow">Administración / Inicio</div>
-          <h1>Panel de control</h1>
-          <p>Resumen general de la operación del gimnasio</p>
+          <div class="dashboard-eyebrow"><i class="fa-solid fa-chart-line"></i> Administración / Centro Operativo</div>
+          <h1>Panel de Control Ejecutivo</h1>
+          <p>Monitoreo en tiempo real de Membresías, Suscripciones Vigentes, Alertas de 7 Días Hábiles y Rutinas</p>
         </div>
-        <div class="dashboard-user"><i class="fa-solid fa-circle-user"></i><div><strong>Administrador</strong><small>Panel administrativo</small></div></div>
+        <div class="dashboard-user">
+          <i class="fa-solid fa-user-shield"></i>
+          <div>
+            <strong id="nombreUsuarioTop">Administrador</strong>
+            <small>Sesión verificada · Titan Cobalt</small>
+          </div>
+        </div>
       </header>
 
       <section aria-labelledby="titulo-resumen">
-        <div class="dashboard-section-title"><div><h2 id="titulo-resumen">Resumen general</h2><p>Información principal del sistema</p></div></div>
+        <div class="dashboard-section-title">
+          <div>
+            <h2 id="titulo-resumen">Indicadores clave de operación (KPIs)</h2>
+            <p>Resumen consolidado del padrón de socios, vigencias de membresía y carga de entrenamiento</p>
+          </div>
+          <div class="d-flex gap-2">
+            <a href="rutinas.html" class="btn btn-outline-primary btn-sm">
+              <i class="fa-solid fa-dumbbell me-1"></i>Nueva Rutina
+            </a>
+            <a href="inscripciones.html" class="btn btn-primary btn-sm">
+              <i class="fa-solid fa-plus me-1"></i>Asignar Membresía
+            </a>
+          </div>
+        </div>
+
         <div class="row g-3">
-          <div class="col-12 col-md-6"><div class="dashboard-stat"><div><p class="stat-label">Clientes registrados</p><h3 class="stat-number" id="totalClientes">0</h3><p class="stat-detail">Total de clientes</p></div><span class="stat-icon"><i class="fa-solid fa-users"></i></span></div></div>
-          <div class="col-12 col-md-6"><div class="dashboard-stat"><div><p class="stat-label">Membresías</p><h3 class="stat-number" id="totalMembresias">0</h3><p class="stat-detail">Planes registrados</p></div><span class="stat-icon"><i class="fa-solid fa-id-card"></i></span></div></div>
+          <div class="col-12 col-sm-6 col-xl-4">
+            <div class="dashboard-stat">
+              <div>
+                <p class="stat-label">Clientes registrados</p>
+                <h3 class="stat-number" id="totalClientes">0</h3>
+                <p class="stat-detail">Socios registrados en el padrón</p>
+              </div>
+              <span class="stat-icon"><i class="fa-solid fa-users"></i></span>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-6 col-xl-4">
+            <div class="dashboard-stat">
+              <div>
+                <p class="stat-label">Catálogo de planes</p>
+                <h3 class="stat-number" id="totalMembresias">0</h3>
+                <p class="stat-detail"><strong class="text-primary" id="planesActivos">0</strong> planes habilitados</p>
+              </div>
+              <span class="stat-icon"><i class="fa-solid fa-id-card"></i></span>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-6 col-xl-4">
+            <div class="dashboard-stat stat-emerald">
+              <div>
+                <p class="stat-label">Membresías vigentes</p>
+                <h3 class="stat-number text-success" id="inscripcionesActivas">0</h3>
+                <p class="stat-detail"><strong id="inscripcionesPendientes">0</strong> pendientes de activación</p>
+              </div>
+              <span class="stat-icon"><i class="fa-solid fa-circle-check text-success"></i></span>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-6 col-xl-4">
+            <div class="dashboard-stat stat-amber">
+              <div>
+                <p class="stat-label">Próximas a vencer (≤ 7 días hábiles)</p>
+                <h3 class="stat-number text-warning" id="inscripcionesProximas">0</h3>
+                <p class="stat-detail">Excluye sábados, domingos y feriados</p>
+              </div>
+              <span class="stat-icon"><i class="fa-solid fa-bell text-warning"></i></span>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-6 col-xl-4">
+            <div class="dashboard-stat stat-rose">
+              <div>
+                <p class="stat-label">Inscripciones vencidas</p>
+                <h3 class="stat-number text-danger" id="inscripcionesVencidas">0</h3>
+                <p class="stat-detail">Disponibles para renovación inmediata</p>
+              </div>
+              <span class="stat-icon"><i class="fa-solid fa-calendar-xmark text-danger"></i></span>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-6 col-xl-4">
+            <div class="dashboard-stat">
+              <div>
+                <p class="stat-label">Rutinas en ejecución</p>
+                <h3 class="stat-number text-primary" id="rutinasActivas">0</h3>
+                <p class="stat-detail"><strong id="totalRutinas">0</strong> totales · <strong id="entrenadoresActivos">0</strong> entrenadores activos</p>
+              </div>
+              <span class="stat-icon"><i class="fa-solid fa-dumbbell text-primary"></i></span>
+            </div>
+          </div>
         </div>
       </section>
+
+      <!-- DISTRIBUCIÓN VISUAL DE DATOS REALES -->
+      <div class="row g-3 mt-1">
+        <div class="col-12 col-lg-7">
+          <div class="metric-distribution-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <h6 class="fw-bold mb-0" style="color: var(--navy-900);">
+                  <i class="fa-solid fa-chart-pie text-primary me-2"></i>Distribución real de estados de Inscripciones
+                </h6>
+                <small class="text-muted">Proporción calculada sobre el total de inscripciones registradas</small>
+              </div>
+              <span class="badge bg-primary" id="totalInscripcionesGlobal">0 inscripciones</span>
+            </div>
+            <div class="metric-bar-track mt-3" id="barraEstadosInscripciones">
+              <div class="metric-bar-segment" style="width: 100%; background: #e2e8f0;"></div>
+            </div>
+            <div class="metric-legend">
+              <span class="metric-legend-item"><span class="metric-dot" style="background:#10b981;"></span>Vigentes: <strong id="legActivas">0</strong></span>
+              <span class="metric-legend-item"><span class="metric-dot" style="background:#2563eb;"></span>Pendientes: <strong id="legPendientes">0</strong></span>
+              <span class="metric-legend-item"><span class="metric-dot" style="background:#ef4444;"></span>Vencidas: <strong id="legVencidas">0</strong></span>
+              <span class="metric-legend-item"><span class="metric-dot" style="background:#64748b;"></span>Canceladas: <strong id="legCanceladas">0</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-5">
+          <div class="metric-distribution-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <h6 class="fw-bold mb-0" style="color: var(--navy-900);">
+                  <i class="fa-solid fa-dumbbell text-primary me-2"></i>Estado de Rutinas y Entrenadores
+                </h6>
+                <small class="text-muted">Relación de rutinas activas e históricas</small>
+              </div>
+              <span class="badge bg-success" id="ratioRutinasActivas">0% activas</span>
+            </div>
+            <div class="metric-bar-track mt-3" id="barraEstadosRutinas">
+              <div class="metric-bar-segment" style="width: 100%; background: #e2e8f0;"></div>
+            </div>
+            <div class="metric-legend">
+              <span class="metric-legend-item"><span class="metric-dot" style="background:#2563eb;"></span>Rutinas activas: <strong id="legRutActivas">0</strong></span>
+              <span class="metric-legend-item"><span class="metric-dot" style="background:#94a3b8;"></span>Inactivas (historial): <strong id="legRutInactivas">0</strong></span>
+              <span class="metric-legend-item"><span class="metric-dot" style="background:#10b981;"></span>Staff activo: <strong id="legStaffActivo">0</strong>/<span id="legStaffTotal">0</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div class="row g-3 mt-2">
         <section class="col-12" aria-labelledby="titulo-accesos">
           <div class="dashboard-block">
-            <div class="dashboard-block-header"><div><h2 id="titulo-accesos">Operaciones frecuentes</h2><p>Accede a las tareas más utilizadas</p></div><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+            <div class="dashboard-block-header">
+              <div>
+                <h2 id="titulo-accesos">Accesos rápidos de gestión</h2>
+                <p>Operaciones frecuentes para recepción y coordinación deportiva</p>
+              </div>
+              <span class="badge bg-primary">Flujo directo sin módulo de pagos</span>
+            </div>
             <div class="dashboard-shortcuts">
-              <a class="dashboard-shortcut" href="clientes.html"><span class="shortcut-icon"><i class="fa-solid fa-user-plus"></i></span><span><strong>Nuevo cliente</strong><small>Gestionar registros</small></span><i class="fa-solid fa-chevron-right shortcut-arrow"></i></a>
-              <a class="dashboard-shortcut" href="membresias.html"><span class="shortcut-icon"><i class="fa-solid fa-id-card"></i></span><span><strong>Membresías</strong><small>Consultar planes</small></span><i class="fa-solid fa-chevron-right shortcut-arrow"></i></a>
+              <a class="dashboard-shortcut" href="inscripciones.html">
+                <span class="shortcut-icon"><i class="fa-solid fa-file-signature"></i></span>
+                <span><strong>Asignar / Renovar membresía</strong><small>Activar suscripciones y vigencias</small></span>
+                <i class="fa-solid fa-chevron-right shortcut-arrow"></i>
+              </a>
+              <a class="dashboard-shortcut" href="rutinas.html">
+                <span class="shortcut-icon"><i class="fa-solid fa-dumbbell"></i></span>
+                <span><strong>Constructor de rutinas</strong><small>Objetivos, días, series y descansos</small></span>
+                <i class="fa-solid fa-chevron-right shortcut-arrow"></i>
+              </a>
+              <a class="dashboard-shortcut" href="clientes.html">
+                <span class="shortcut-icon"><i class="fa-solid fa-user-plus"></i></span>
+                <span><strong>Directorio de clientes</strong><small>Padrón y línea de tiempo histórica</small></span>
+                <i class="fa-solid fa-chevron-right shortcut-arrow"></i>
+              </a>
+              <a class="dashboard-shortcut" href="membresias.html">
+                <span class="shortcut-icon"><i class="fa-solid fa-id-card"></i></span>
+                <span><strong>Catálogo de planes</strong><small>Duración en días y disponibilidad</small></span>
+                <i class="fa-solid fa-chevron-right shortcut-arrow"></i>
+              </a>
             </div>
           </div>
         </section>
       </div>
 
       <section class="dashboard-block dashboard-alerts" aria-labelledby="titulo-alertas">
-        <div class="dashboard-block-header"><div><h2 id="titulo-alertas"><i class="fa-solid fa-triangle-exclamation text-warning me-2"></i>Membresías próximas a vencer</h2><p>Clientes con membresías que vencen en los próximos 7 días</p></div><span class="badge bg-warning text-dark" id="totalAlertas">0 alertas</span></div>
-        <div class="table-responsive"><table class="table table-hover align-middle"><thead><tr><th>Cliente</th><th>Membresía</th><th>Fecha de vencimiento</th><th>Días restantes</th><th>Estado</th></tr></thead><tbody id="tablaAlertas"><tr><td colspan="5" class="text-center text-muted">Cargando alertas...</td></tr></tbody></table></div>
+        <div class="dashboard-block-header">
+          <div>
+            <h2 id="titulo-alertas">
+              <i class="fa-solid fa-triangle-exclamation text-warning me-2"></i>
+              Radar de vencimientos próximos (≤ 7 días hábiles)
+            </h2>
+            <p>Cálculo inteligente sobre calendario laboral (excluye sábados, domingos y feriados configurados)</p>
+          </div>
+          <span class="badge bg-warning text-dark" id="totalAlertas">0 alertas</span>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Plan contratado</th>
+                <th>Fecha vencimiento</th>
+                <th>Días hábiles restantes</th>
+                <th>Días calendario</th>
+                <th>Prioridad</th>
+                <th class="text-end">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="tablaAlertas">
+              <tr>
+                <td colspan="7" class="text-center text-muted py-4">Cargando alertas...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </section>
-      <footer class="dashboard-bottom"><span>© Titan Fitness Club · Sistema administrativo</span><span>Panel de control</span></footer>
+
+      <footer class="dashboard-bottom">
+        <span>© Titan Fitness Club · Edición Titan Cobalt Pro</span>
+        <span>Gestión de Membresías y Rutinas</span>
+      </footer>
     </main>
   </div>
+  <script src="js/auth.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

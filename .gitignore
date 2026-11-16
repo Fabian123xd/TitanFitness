@@ -3,10 +3,8 @@ backend/target/
 *.class
 *.jar
 
-# VS Code
+# VS Code / IDEs
 .vscode/
-
-# IntelliJ
 .idea/
 *.iml
 
@@ -14,14 +12,13 @@ backend/target/
 .DS_Store
 Thumbs.db
 
-# Variables y credenciales
-.env
-
-# Logs
-*.log
-error-spring.txt
-
+# Variables de entorno y credenciales (NUNCA versionar)
 .env
 **/.env
+
+# Logs y archivos temporales
+*.log
+error.txt
+error-spring.txt
 backend/error.txt
 backend/error-spring.txt

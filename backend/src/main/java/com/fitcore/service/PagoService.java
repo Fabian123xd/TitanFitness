@@ -1,6 +1,7 @@
 
 package com.fitcore.service;
 
+import com.fitcore.model.EstadoInscripcion;
 import com.fitcore.model.Inscripcion;
 import com.fitcore.model.Pago;
 import com.fitcore.repository.InscripcionRepository;
@@ -14,6 +15,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+/**
+ * @deprecated Módulo de pagos fuera del alcance del proyecto (Etapa 3).
+ * La lógica de activación de inscripciones (que antes estaba aquí en registrar())
+ * fue migrada a InscripcionService.activar(Long id).
+ *
+ * Esta clase se mantiene para conservar el historial. No usar en frontend.
+ */
+@Deprecated(since = "Etapa3", forRemoval = false)
 @Service
 public class PagoService {
 
@@ -65,7 +74,7 @@ public class PagoService {
                         ));
 
         // Validar estado de la inscripción
-        if (!"PENDIENTE".equals(inscripcion.getEstado())) {
+        if (inscripcion.getEstado() != EstadoInscripcion.PENDIENTE) {
             throw new IllegalStateException(
                     "Solo se pueden pagar inscripciones pendientes"
             );
@@ -148,7 +157,7 @@ public class PagoService {
         Pago pagoGuardado = pagoRepository.save(pago);
 
         // Activar inscripción
-        inscripcion.setEstado("ACTIVA");
+        inscripcion.setEstado(EstadoInscripcion.ACTIVA);
         inscripcionRepository.save(inscripcion);
 
         return pagoGuardado;

@@ -1,21 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Titan Fitness Club | Clientes</title>
+    <title>Titan Fitness Club | Padrón de Clientes</title>
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
-
-    <link
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-        rel="stylesheet"
-    >
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <script>
     if (sessionStorage.getItem('sesionActiva') !== 'true') {
@@ -47,9 +38,13 @@
 
             <a href="membresias.html">
                 <i class="fa-solid fa-id-card"></i>
-                <span>Membresías</span>
+                <span>Planes de Membresía</span>
             </a>
 
+            <a href="inscripciones.html">
+                <i class="fa-solid fa-file-signature"></i>
+                <span>Inscripciones</span>
+            </a>
 
             <a href="entrenadores.html">
                 <i class="fa-solid fa-user-tie"></i>
@@ -61,94 +56,94 @@
                 <span>Rutinas</span>
             </a>
         </nav>
+
+        <div class="sidebar-footer">Titan Cobalt Pro · Sistema SaaS</div>
     </aside>
 
     <!-- CONTENIDO PRINCIPAL -->
     <main class="main-content">
 
-        <!-- ENCABEZADO -->
-        <div class="topbar">
+        <header class="dashboard-heading">
             <div>
-                <div class="text-uppercase text-muted small fw-semibold mb-2">
-                    Administración / Clientes
+                <div class="dashboard-eyebrow">
+                    <i class="fa-solid fa-users"></i> Administración / Padrón de Socios
                 </div>
-
-                <h2>Gestión de clientes</h2>
-
-                <p>
-                    Consulta y administra los registros de clientes
-                    de Titan Fitness Club.
-                </p>
+                <h1>Gestión de Clientes</h1>
+                <p>Consulta y administra el padrón de socios y su historial de membresías y rutinas de entrenamiento.</p>
             </div>
 
-            <button
-                type="button"
-                class="btn btn-primary"
-                data-bs-toggle="modal"
-                data-bs-target="#modalCliente"
-                onclick="nuevoCliente()"
-            >
-                <i class="fa-solid fa-user-plus me-2"></i>
-                Nuevo cliente
-            </button>
-        </div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalCliente"
+                    onclick="nuevoCliente()"
+                >
+                    <i class="fa-solid fa-user-plus me-2"></i>Nuevo cliente
+                </button>
+            </div>
+        </header>
 
-        <!-- RESUMEN -->
-        <div class="mb-3">
-            <h5 class="fw-semibold mb-1">Resumen de clientes</h5>
-            <p class="text-muted small mb-0">
-                Información general de los clientes registrados
-            </p>
-        </div>
+        <div id="alertaClientes" class="alert d-none" role="alert"></div>
 
+        <!-- TARJETAS KPI CON DATOS REALES -->
         <div class="row g-3 mb-4">
-            <div class="col-md-6 col-xl-4">
-                <div class="card-dashboard">
+            <div class="col-12 col-md-4">
+                <div class="dashboard-stat">
                     <div>
-                        <p>Clientes registrados</p>
-
-                        <h3 id="contadorClientes">-</h3>
-
-                        <small class="text-muted">
-                            Total de registros
-                        </small>
+                        <p class="stat-label">Clientes registrados</p>
+                        <h3 class="stat-number" id="contadorClientes">0</h3>
+                        <p class="stat-detail">Total de socios en el sistema</p>
                     </div>
+                    <span class="stat-icon"><i class="fa-solid fa-users"></i></span>
+                </div>
+            </div>
 
-                    <i class="fa-solid fa-users"></i>
+            <div class="col-12 col-md-4">
+                <div class="dashboard-stat stat-emerald">
+                    <div>
+                        <p class="stat-label">Con correo electrónico</p>
+                        <h3 class="stat-number text-success" id="contadorClientesCorreo">0</h3>
+                        <p class="stat-detail">Registrados con correo de contacto</p>
+                    </div>
+                    <span class="stat-icon"><i class="fa-solid fa-envelope-circle-check text-success"></i></span>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <div class="dashboard-stat">
+                    <div>
+                        <p class="stat-label">Con teléfono registrado</p>
+                        <h3 class="stat-number text-primary" id="contadorClientesTelefono">0</h3>
+                        <p class="stat-detail">Disponibles para contacto directo</p>
+                    </div>
+                    <span class="stat-icon"><i class="fa-solid fa-phone text-primary"></i></span>
                 </div>
             </div>
         </div>
 
-        <!-- DIRECTORIO DE CLIENTES -->
         <section class="panel">
-
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
                 <div>
-                    <h4 class="mb-1">
-                        Directorio de clientes
-                    </h4>
-
+                    <h4 class="mb-1">Directorio de clientes</h4>
                     <p class="text-muted mb-0">
-                        Consulta, edita y revisa el historial
-                        de los clientes registrados.
+                        Consulta, edita y revisa el historial de membresías y rutinas de cada socio registrado.
                     </p>
                 </div>
 
-                <!-- BUSCADOR -->
                 <div class="client-search">
                     <i class="fa-solid fa-magnifying-glass"></i>
-
                     <input
                         type="text"
                         id="buscarCliente"
-                        placeholder="Buscar por nombre o DNI..."
+                        placeholder="Buscar por nombre, DNI o correo..."
                         autocomplete="off"
                         aria-label="Buscar cliente"
                     >
                 </div>
             </div>
 
-            <!-- TABLA -->
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead>
@@ -176,84 +171,45 @@
             </div>
         </section>
 
+        <footer class="dashboard-bottom">
+            <span>© Titan Fitness Club · Edición Titan Cobalt Pro</span>
+            <span>Padrón de Clientes</span>
+        </footer>
     </main>
 </div>
 
 <!-- MODAL: REGISTRAR / EDITAR CLIENTE -->
-<div
-    class="modal fade"
-    id="modalCliente"
-    tabindex="-1"
-    aria-labelledby="tituloModalCliente"
-    aria-hidden="true"
->
+<div class="modal fade" id="modalCliente" tabindex="-1" aria-labelledby="tituloModalCliente" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
-
             <div class="modal-header">
                 <div>
-                    <h5 class="modal-title" id="tituloModalCliente">
-                        Registrar nuevo cliente
-                    </h5>
-
-                    <small class="text-muted">
-                        Complete la información del cliente
-                    </small>
+                    <h5 class="modal-title" id="tituloModalCliente">Registrar nuevo cliente</h5>
+                    <small class="text-muted">Complete la información personal y de contacto del socio</small>
                 </div>
-
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Cerrar"
-                ></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
 
             <form id="formCliente">
                 <div class="modal-body">
                     <div class="row g-3">
-
-                        <!-- NOMBRES -->
                         <div class="col-md-6">
-                            <label for="nombres" class="form-label">
-                                Nombres
-                            </label>
-
-                            <input
-                                type="text"
-                                id="nombres"
-                                class="form-control"
-                                placeholder="Ej. Juan Carlos"
-                                required
-                            >
+                            <label for="nombres" class="form-label">Nombres *</label>
+                            <input type="text" id="nombres" class="form-control" placeholder="Ej. Juan Carlos" required>
                         </div>
 
-                        <!-- APELLIDOS -->
                         <div class="col-md-6">
-                            <label for="apellidos" class="form-label">
-                                Apellidos
-                            </label>
-
-                            <input
-                                type="text"
-                                id="apellidos"
-                                class="form-control"
-                                placeholder="Ej. Pérez López"
-                                required
-                            >
+                            <label for="apellidos" class="form-label">Apellidos *</label>
+                            <input type="text" id="apellidos" class="form-control" placeholder="Ej. Pérez López" required>
                         </div>
 
-                        <!-- DNI -->
                         <div class="col-md-6">
-                            <label for="dni" class="form-label">
-                                DNI
-                            </label>
-
+                            <label for="dni" class="form-label">DNI (8 dígitos) *</label>
                             <input
                                 type="text"
                                 id="dni"
                                 class="form-control"
-                                placeholder="8 dígitos"
+                                placeholder="8 dígitos numéricos"
                                 maxlength="8"
                                 pattern="[0-9]{8}"
                                 inputmode="numeric"
@@ -261,148 +217,89 @@
                             >
                         </div>
 
-                        <!-- TELÉFONO -->
                         <div class="col-md-6">
-                            <label for="telefono" class="form-label">
-                                Teléfono
-                            </label>
-
-                            <input
-                                type="text"
-                                id="telefono"
-                                class="form-control"
-                                placeholder="Ej. 987654321"
-                            >
+                            <label for="telefono" class="form-label">Teléfono</label>
+                            <input type="text" id="telefono" class="form-control" placeholder="Ej. 987654321">
                         </div>
 
-                        <!-- CORREO -->
                         <div class="col-12">
-                            <label for="correo" class="form-label">
-                                Correo electrónico
-                            </label>
-
-                            <input
-                                type="email"
-                                id="correo"
-                                class="form-control"
-                                placeholder="cliente@correo.com"
-                            >
+                            <label for="correo" class="form-label">Correo electrónico</label>
+                            <input type="email" id="correo" class="form-control" placeholder="cliente@correo.com">
                         </div>
-
                     </div>
                 </div>
 
                 <div class="modal-footer">
-                    <button
-                        type="button"
-                        class="btn btn-light"
-                        data-bs-dismiss="modal"
-                    >
-                        Cancelar
-                    </button>
-
-                    <button
-                        type="submit"
-                        class="btn btn-primary"
-                    >
-                        <i class="fa-solid fa-floppy-disk me-2"></i>
-                        Guardar cliente
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-floppy-disk me-2"></i>Guardar cliente
                     </button>
                 </div>
             </form>
-
         </div>
     </div>
 </div>
 
-<!-- MODAL: HISTORIAL DEL CLIENTE -->
-<div
-    class="modal fade"
-    id="modalHistorial"
-    tabindex="-1"
-    aria-labelledby="tituloHistorial"
-    aria-hidden="true"
->
+<!-- MODAL: HISTORIAL DEL CLIENTE (MEMBRESÍAS Y RUTINAS) -->
+<div class="modal fade" id="modalHistorial" tabindex="-1" aria-labelledby="tituloHistorial" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-
             <div class="modal-header">
                 <h5 class="modal-title" id="tituloHistorial">
-                    <i class="fa-solid fa-clock-rotate-left me-2"></i>
-                    Historial del cliente
+                    <i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>
+                    Expediente Histórico de Membresías y Rutinas
                 </h5>
-
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Cerrar"
-                ></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
 
             <div class="modal-body">
-                <h5 id="nombreClienteHistorial">
-                    Cliente
-                </h5>
-
-                <p
-                    id="dniClienteHistorial"
-                    class="text-muted"
-                ></p>
-
-                <hr>
-
-                <!-- INSCRIPCIONES -->
-                <h6 class="fw-bold mb-3">
-                    Membresías e inscripciones
-                </h6>
-
-                <div
-                    id="historialInscripciones"
-                    class="mb-4"
-                >
-                    Cargando...
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 p-3 rounded-3 border bg-light mb-3">
+                    <div>
+                        <h5 id="nombreClienteHistorial" class="fw-bold mb-1" style="color: var(--navy-900);">Cliente</h5>
+                        <p id="dniClienteHistorial" class="text-muted small mb-0"></p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a id="linkInscribirCliente" href="inscripciones.html" class="btn btn-sm btn-primary">
+                            <i class="fa-solid fa-file-signature me-1"></i>Asignar membresía
+                        </a>
+                        <a id="linkRutinaCliente" href="rutinas.html" class="btn btn-sm btn-outline-primary">
+                            <i class="fa-solid fa-dumbbell me-1"></i>Asignar rutina
+                        </a>
+                    </div>
                 </div>
 
-                <!-- PAGOS -->
-                <h6 class="fw-bold mb-3">
-                    Historial de pagos
-                </h6>
+                <div class="row g-3">
+                    <div class="col-12 col-lg-6">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold mb-0">
+                                <i class="fa-solid fa-file-signature text-primary me-2"></i>Inscripciones de Membresía
+                            </h6>
+                            <span class="badge bg-primary" id="resumenHistorialIns">0</span>
+                        </div>
+                        <div id="historialInscripciones">Cargando...</div>
+                    </div>
 
-                <div
-                    id="historialPagos"
-                    class="mb-4"
-                >
-                    Cargando...
-                </div>
-
-                <!-- ASISTENCIAS -->
-                <h6 class="fw-bold mb-3">
-                    Historial de asistencias
-                </h6>
-
-                <div id="historialAsistencias">
-                    Cargando...
+                    <div class="col-12 col-lg-6">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold mb-0">
+                                <i class="fa-solid fa-dumbbell text-primary me-2"></i>Rutinas Asignadas
+                            </h6>
+                            <span class="badge bg-primary" id="resumenHistorialRut">0</span>
+                        </div>
+                        <div id="historialRutinas">Cargando...</div>
+                    </div>
                 </div>
             </div>
 
             <div class="modal-footer">
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal"
-                >
-                    Cerrar
-                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
-
         </div>
     </div>
 </div>
 
-<!-- SCRIPTS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/auth.js"></script>
 <script src="js/clientes.js"></script>
-
 </body>
 </html>

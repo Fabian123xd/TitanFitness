@@ -3,57 +3,282 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Titan Fitness Club | Iniciar sesión</title>
+  <title>Titan Fitness Club | Acceso Administrativo</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    body { min-height: 100vh; background: #131a2a; display: flex; align-items: center; justify-content: center; }
-    .login-card { width: 100%; max-width: 380px; }
-    .login-logo { color: #3b82f6; font-size: 2.5rem; }
+    @keyframes loginFadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    body {
+      min-height: 100vh;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background:
+        radial-gradient(circle at 18% 20%, rgba(56, 189, 248, 0.18) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(37, 99, 235, 0.28) 0%, transparent 45%),
+        linear-gradient(135deg, #070b14 0%, #0b1120 55%, #0f172a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .login-shell {
+      width: 100%;
+      max-width: 930px;
+      border-radius: 24px;
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      display: grid;
+      grid-template-columns: 1.08fr 1fr;
+      animation: loginFadeIn 0.35s ease-out;
+    }
+    .login-showcase {
+      background: linear-gradient(160deg, #0b1120 0%, #1e3a8a 65%, #0284c7 100%);
+      color: #ffffff;
+      padding: 44px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+    .login-brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      width: fit-content;
+    }
+    .login-showcase h2 {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-top: 22px;
+    }
+    .login-feature-list {
+      list-style: none;
+      padding: 0;
+      margin: 24px 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      font-size: 13.5px;
+      color: #e0f2fe;
+    }
+    .login-feature-list li {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+    .login-feature-list i {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: rgba(56, 189, 248, 0.22);
+      color: #38bdf8;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    .login-card {
+      padding: 44px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: #ffffff;
+    }
+    .login-logo {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #2563eb 0%, #38bdf8 100%);
+      color: #ffffff;
+      font-size: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 22px rgba(37, 99, 235, 0.35);
+    }
+    .form-control {
+      border-radius: 10px;
+      padding: 10px 14px;
+      border-color: #cbd5e1;
+      font-size: 14px;
+    }
+    .form-control:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+    }
+    .input-group-text {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      border-radius: 10px 0 0 10px;
+    }
+    .btn-toggle-pass {
+      border-color: #cbd5e1;
+      background: #f8fafc;
+      color: #64748b;
+      border-radius: 0 10px 10px 0;
+    }
+    .btn-cobalt {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      border: none;
+      color: #ffffff;
+      border-radius: 11px;
+      padding: 11px 16px;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.32);
+      transition: all 0.2s ease;
+    }
+    .btn-cobalt:hover {
+      background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+    @media (max-width: 768px) {
+      .login-shell { grid-template-columns: 1fr; max-width: 430px; }
+      .login-showcase { display: none; }
+      .login-card { padding: 34px 28px; }
+    }
   </style>
 </head>
 <body>
-  <main class="card login-card shadow p-4 border-0">
-    <div class="text-center mb-4">
-      <i class="fa-solid fa-dumbbell login-logo"></i>
-      <h1 class="h4 mt-2 mb-0">Titan Fitness Club</h1>
-      <p class="text-muted small">Inicia sesión para continuar</p>
-    </div>
+  <div class="login-shell">
+    <section class="login-showcase">
+      <div>
+        <div class="login-brand-badge">
+          <i class="fa-solid fa-bolt text-info"></i>
+          <span>TITAN COBALT PRO · EDICIÓN EJECUTIVA</span>
+        </div>
+        <h2>Plataforma Integral de Membresías y Rutinas</h2>
+        <p class="text-light opacity-75 small mt-2">
+          Controla vigencias, alertas de 7 días hábiles, renovaciones con historial intacto y programación técnica de entrenamientos.
+        </p>
+        <ul class="login-feature-list">
+          <li><i class="fa-solid fa-id-card"></i><span>Catálogo de planes, suscripciones y renovaciones</span></li>
+          <li><i class="fa-solid fa-bell"></i><span>Alertas inteligentes en días hábiles (sin fines de semana)</span></li>
+          <li><i class="fa-solid fa-dumbbell"></i><span>Constructor normalizado de rutinas, días y ejercicios</span></li>
+          <li><i class="fa-solid fa-shield-halved"></i><span>Seguridad Spring Security con hash BCrypt</span></li>
+        </ul>
+      </div>
+      <div class="small text-light opacity-75 pt-3 border-top border-light border-opacity-25 d-flex justify-content-between">
+        <span>Titan Fitness Club</span>
+        <span>PostgreSQL · Spring Boot 4</span>
+      </div>
+    </section>
 
-    <form id="loginForm" novalidate>
-      <div class="mb-3">
-        <label for="usuario" class="form-label">Usuario</label>
-        <input type="text" class="form-control" id="usuario" autocomplete="username" required>
+    <main class="login-card">
+      <div class="mb-4">
+        <div class="login-logo mb-3">
+          <i class="fa-solid fa-dumbbell"></i>
+        </div>
+        <h1 class="h4 fw-bold text-dark mb-1">Iniciar sesión</h1>
+        <p class="text-muted small mb-0">Ingrese sus credenciales administrativas para acceder al panel</p>
       </div>
-      <div class="mb-3">
-        <label for="clave" class="form-label">Contraseña</label>
-        <input type="password" class="form-control" id="clave" autocomplete="current-password" required>
+
+      <form id="loginForm" novalidate>
+        <div class="mb-3">
+          <label for="usuario" class="form-label fw-semibold small text-secondary">Usuario administrativo</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fa-solid fa-user text-muted"></i></span>
+            <input type="text" class="form-control" id="usuario" autocomplete="username" placeholder="Ej. admin" required>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="clave" class="form-label fw-semibold small text-secondary">Contraseña</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fa-solid fa-lock text-muted"></i></span>
+            <input type="password" class="form-control" id="clave" autocomplete="current-password" placeholder="••••••••" required>
+            <button type="button" class="btn btn-toggle-pass" id="btnToggleClave" title="Mostrar u ocultar contraseña">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+        </div>
+        <div id="mensajeError" class="alert alert-danger py-2 small d-none" role="alert">
+          Usuario o contraseña incorrectos.
+        </div>
+        <button type="submit" id="btnIngresar" class="btn btn-cobalt w-100 mt-1">
+          <i class="fa-solid fa-right-to-bracket me-2"></i>Acceder al Panel de Control
+        </button>
+      </form>
+
+      <div class="mt-4 pt-3 border-top text-center">
+        <small class="text-muted">
+          <i class="fa-solid fa-lock me-1 text-primary"></i>
+          Autenticación verificada contra <code>/api/auth/me</code> (BCrypt)
+        </small>
       </div>
-      <div id="mensajeError" class="alert alert-danger py-2 small d-none" role="alert">
-        Usuario o contraseña incorrectos.
-      </div>
-      <button type="submit" class="btn btn-primary w-100">Ingresar</button>
-    </form>
-  </main>
+    </main>
+  </div>
 
   <script>
-    // Usuario de prueba (temporal, luego se reemplazará por la validación real del backend)
-    const USUARIO_PRUEBA = 'admin';
-    const CLAVE_PRUEBA = 'admin';
+    const API_AUTH = "http://localhost:8080/api/auth/me";
 
-    document.getElementById('loginForm').addEventListener('submit', function (e) {
+    document.getElementById("btnToggleClave").addEventListener("click", function () {
+      const input = document.getElementById("clave");
+      const icono = this.querySelector("i");
+      if (input.type === "password") {
+        input.type = "text";
+        icono.className = "fa-solid fa-eye-slash";
+      } else {
+        input.type = "password";
+        icono.className = "fa-solid fa-eye";
+      }
+    });
+
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
       e.preventDefault();
 
-      const usuario = document.getElementById('usuario').value.trim();
-      const clave = document.getElementById('clave').value;
-      const error = document.getElementById('mensajeError');
+      const usuario = document.getElementById("usuario").value.trim();
+      const clave = document.getElementById("clave").value;
+      const error = document.getElementById("mensajeError");
+      const btn = document.getElementById("btnIngresar");
 
-      if (usuario === USUARIO_PRUEBA && clave === CLAVE_PRUEBA) {
-        sessionStorage.setItem('sesionActiva', 'true');
-        sessionStorage.setItem('usuario', usuario);
-        window.location.href = 'index.html';
-      } else {
-        error.classList.remove('d-none');
+      if (!usuario || !clave) {
+        error.textContent = "Ingrese su usuario y contraseña.";
+        error.classList.remove("d-none");
+        return;
+      }
+
+      error.classList.add("d-none");
+      btn.disabled = true;
+
+      const token = btoa(`${usuario}:${clave}`);
+
+      try {
+        const res = await fetch(API_AUTH, {
+          headers: { "Authorization": `Basic ${token}` }
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          sessionStorage.setItem("sesionActiva", "true");
+          sessionStorage.setItem("usuario", data.username || usuario);
+          sessionStorage.setItem("authToken", token);
+          window.location.href = "index.html";
+          return;
+        }
+
+        error.textContent = "Usuario o contraseña incorrectos.";
+        error.classList.remove("d-none");
+      } catch (err) {
+        error.textContent = "No se pudo conectar con el servidor backend (http://localhost:8080).";
+        error.classList.remove("d-none");
+      } finally {
+        btn.disabled = false;
       }
     });
   </script>
