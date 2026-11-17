@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -425,5 +426,97 @@ class ApiIntegrationTest {
         assertTrue(((Number) JsonPath.read(resumen, "$.rutinasActivas")).longValue() >= 1);
         assertTrue(((Number) JsonPath.read(resumen, "$.entrenadoresActivos")).longValue() >= 1);
         assertFalse(resumen.toLowerCase().contains("pago"));
+    }
+
+    @Test
+    @DisplayName("Progreso de rutina: PATCH toggle-completado, registro de peso y validaciones")
+    void progresoEjerciciosRutina() throws Exception {
+        long clienteId = crearCliente();
+        long entrenadorId = crearEntrenador();
+
+        String creada = enviarPost("/api/rutinas", rutinaJson(clienteId, entrenadorId, DIAS_COMPLETOS), 201);
+        long rutinaId = ((Number) JsonPath.read(creada, "$.id")).longValue();
+        long ej1Id = ((Number) JsonPath.read(creada, "$.dias[0].ejercicios[0].id")).longValue();
+        assertEquals(0, (int) JsonPath.read(creada, "$.ejerciciosCompletados"));
+        assertEquals(0, (int) JsonPath.read(creada, "$.porcentajeProgreso"));
+
+        // 1. Marcar ejercicio como completado (1 de 3 = 33%)
+        String r1 = json(mvc.perform(patch("/api/rutinas/" + rutinaId + "/ejercicios/" + ej1Id + "/toggle-completado")
+                .with(admin())).andExpect(status().isOk()));
+        assertEquals(1, (int) JsonPath.read(r1, "$.ejerciciosCompletados"));
+        assertEquals(33, (int) JsonPath.read(r1, "$.porcentajeProgreso"));
+        assertTrue((Boolean) JsonPath.read(r1, "$.dias[0].ejercicios[0].completado"));
+
+        // 2. Registrar peso utilizado (80.5 kg)
+        String rPeso = json(mvc.perform(patch("/api/rutinas/" + rutinaId + "/ejercicios/" + ej1Id + "/peso")
+                .with(admin())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"pesoKg\":80.5}"))
+                .andExpect(status().isOk()));
+        assertEquals(80.5, ((Number) JsonPath.read(rPeso, "$.dias[0].ejercicios[0].pesoKg")).doubleValue());
+
+        // 3. Peso negativo o mayor a 1000 kg -> 400
+        mvc.perform(patch("/api/rutinas/" + rutinaId + "/ejercicios/" + ej1Id + "/peso")
+                .with(admin())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"pesoKg\":-5}"))
+                .andExpect(status().isBadRequest());
+
+        mvc.perform(patch("/api/rutinas/" + rutinaId + "/ejercicios/" + ej1Id + "/peso")
+                .with(admin())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"pesoKg\":1250.0}"))
+                .andExpect(status().isBadRequest());
+
+        // 4. Ejercicio inexistente o ajeno -> 404
+        mvc.perform(patch("/api/rutinas/" + rutinaId + "/ejercicios/999999/toggle-completado")
+                .with(admin()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Trazabilidad en inscripciones: fechaActivacion, inscripcionOrigenId, fechaCancelacion y motivo")
+    void trazabilidadInscripcionesEndToEnd() throws Exception {
+        long clienteId = crearCliente();
+        long planId = crearPlan("PlanTrazabilidad", 30);
+
+        long insId = asignar(clienteId, planId, 201);
+        String activada = enviarPut("/api/inscripciones/" + insId + "/activar", null, 200);
+        assertTrue(JsonPath.read(activada, "$.fechaActivacion") != null);
+
+        String renovada = enviarPost("/api/inscripciones/" + insId + "/renovar?observaciones=Continuidad", "", 201);
+        assertEquals(insId, ((Number) JsonPath.read(renovada, "$.inscripcionOrigenId")).longValue());
+
+        String cancelada = enviarPut("/api/inscripciones/" + insId + "/cancelar",
+                "{\"motivo\":\"Mudanza de ciudad\"}", 200);
+        assertEquals("CANCELADA", JsonPath.read(cancelada, "$.estado"));
+        assertEquals("Mudanza de ciudad", JsonPath.read(cancelada, "$.motivoCancelacion"));
+        assertTrue(JsonPath.read(cancelada, "$.fechaCancelacion") != null);
+    }
+
+    @Test
+    @DisplayName("Seguridad: cambio de contraseña valida clave actual con BCrypt y actualiza hash")
+    void cambioPasswordSeguro() throws Exception {
+        // 1. Sin autenticación -> 401
+        mvc.perform(put("/api/auth/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"passwordActual\":\"ClaveSoloParaPruebas2026\",\"passwordNueva\":\"NuevaClaveSegura2026\"}"))
+                .andExpect(status().isUnauthorized());
+
+        // 2. Contraseña actual incorrecta -> 400
+        enviarPut("/api/auth/password",
+                "{\"passwordActual\":\"Incorrecta123\",\"passwordNueva\":\"NuevaClaveSegura2026\"}", 400);
+
+        // 3. Nueva contraseña igual a la actual -> 400
+        enviarPut("/api/auth/password",
+                "{\"passwordActual\":\"ClaveSoloParaPruebas2026\",\"passwordNueva\":\"ClaveSoloParaPruebas2026\"}", 400);
+
+        // 4. Cambio exitoso -> 200 y el usuario autentica con la nueva clave
+        enviarPut("/api/auth/password",
+                "{\"passwordActual\":\"ClaveSoloParaPruebas2026\",\"passwordNueva\":\"NuevaClaveSegura2026\"}", 200);
+
+        mvc.perform(get("/api/auth/me").with(httpBasic("admin", "NuevaClaveSegura2026")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value("admin"));
     }
 }

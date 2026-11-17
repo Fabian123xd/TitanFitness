@@ -7,12 +7,11 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface EntrenadorRepository
-        extends JpaRepository<Entrenador, Long> {
+public interface EntrenadorRepository extends JpaRepository<Entrenador, Long> {
 
-    // Listar entrenadores activos
     List<Entrenador> findByActivoTrue();
 
-    // Verificar si ya existe el correo
+    long countByActivoTrue();
+
     boolean existsByCorreo(String correo);
 }

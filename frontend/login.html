@@ -226,6 +226,18 @@
 
   <script>
     const API_AUTH = "http://localhost:8080/api/auth/me";
+    const MAX_INTENTOS_LOGIN = 5;
+    const BLOQUEO_TEMPORAL_MS = 30 * 1000;
+    let intentosFallidos = 0;
+    let bloqueadoHasta = 0;
+
+    const motivoCierre = sessionStorage.getItem("motivoCierreSesion");
+    if (motivoCierre) {
+      const error = document.getElementById("mensajeError");
+      error.textContent = motivoCierre;
+      error.classList.remove("d-none");
+      sessionStorage.removeItem("motivoCierreSesion");
+    }
 
     document.getElementById("btnToggleClave").addEventListener("click", function () {
       const input = document.getElementById("clave");
@@ -247,6 +259,13 @@
       const error = document.getElementById("mensajeError");
       const btn = document.getElementById("btnIngresar");
 
+      if (Date.now() < bloqueadoHasta) {
+        const seg = Math.ceil((bloqueadoHasta - Date.now()) / 1000);
+        error.textContent = `Demasiados intentos fallidos. Espere ${seg} segundos antes de volver a intentar.`;
+        error.classList.remove("d-none");
+        return;
+      }
+
       if (!usuario || !clave) {
         error.textContent = "Ingrese su usuario y contraseña.";
         error.classList.remove("d-none");
@@ -264,6 +283,7 @@
         });
 
         if (res.ok) {
+          intentosFallidos = 0;
           const data = await res.json();
           sessionStorage.setItem("sesionActiva", "true");
           sessionStorage.setItem("usuario", data.username || usuario);
@@ -272,7 +292,14 @@
           return;
         }
 
-        error.textContent = "Usuario o contraseña incorrectos.";
+        intentosFallidos++;
+        if (intentosFallidos >= MAX_INTENTOS_LOGIN) {
+          bloqueadoHasta = Date.now() + BLOQUEO_TEMPORAL_MS;
+          intentosFallidos = 0;
+          error.textContent = "Demasiados intentos fallidos. Por seguridad, espere 30 segundos.";
+        } else {
+          error.textContent = "Usuario o contraseña incorrectos.";
+        }
         error.classList.remove("d-none");
       } catch (err) {
         error.textContent = "No se pudo conectar con el servidor backend (http://localhost:8080).";

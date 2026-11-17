@@ -1,5 +1,6 @@
 package com.fitcore.controller;
 
+import com.fitcore.dto.ActualizarPesoEjercicioDTO;
 import com.fitcore.dto.RutinaRequestDTO;
 import com.fitcore.dto.RutinaResponseDTO;
 import com.fitcore.service.RutinaService;
@@ -11,8 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * API de rutinas. Una rutina se guarda junto con sus días y ejercicios
- * (POST/PUT con cuerpo JSON).
+ * API REST de rutinas de entrenamiento y seguimiento del progreso de ejercicios.
  */
 @RestController
 @RequestMapping("/api/rutinas")
@@ -29,7 +29,7 @@ public class RutinaController {
         return rutinaService.listarTodas();
     }
 
-    /** Detalle completo: días de entrenamiento y ejercicios. */
+    /** Detalle completo: días de entrenamiento, ejercicios y avance. */
     @GetMapping("/{id}")
     public RutinaResponseDTO buscarPorId(@PathVariable Long id) {
         return rutinaService.buscarPorId(id);
@@ -69,5 +69,37 @@ public class RutinaController {
     @PutMapping("/{id}/reactivar")
     public RutinaResponseDTO reactivar(@PathVariable Long id) {
         return rutinaService.reactivar(id);
+    }
+
+    /**
+     * Marca o desmarca un ejercicio como completado dentro de la rutina indicada
+     * y devuelve la rutina actualizada con su nuevo porcentaje de progreso.
+     */
+    @RequestMapping(
+            path = "/{rutinaId}/ejercicios/{ejercicioId}/toggle-completado",
+            method = {RequestMethod.PATCH, RequestMethod.PUT}
+    )
+    public RutinaResponseDTO toggleEjercicioCompletado(
+            @PathVariable Long rutinaId,
+            @PathVariable Long ejercicioId) {
+        return rutinaService.toggleEjercicioCompletado(rutinaId, ejercicioId);
+    }
+
+    /**
+     * Actualiza el peso utilizado (kg) en un ejercicio de la rutina.
+     */
+    @RequestMapping(
+            path = "/{rutinaId}/ejercicios/{ejercicioId}/peso",
+            method = {RequestMethod.PATCH, RequestMethod.PUT}
+    )
+    public RutinaResponseDTO actualizarPesoEjercicio(
+            @PathVariable Long rutinaId,
+            @PathVariable Long ejercicioId,
+            @Valid @RequestBody ActualizarPesoEjercicioDTO body) {
+        return rutinaService.actualizarPesoEjercicio(
+                rutinaId,
+                ejercicioId,
+                body != null ? body.pesoKg() : null
+        );
     }
 }

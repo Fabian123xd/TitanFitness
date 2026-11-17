@@ -17,25 +17,28 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Gestión de inscripciones (contratación de un plan por un cliente).
+ * Gestión de inscripciones (contratación de un plan por un cliente) con trazabilidad
+ * completa de renovaciones, activaciones y cancelaciones y protección frente a concurrencia.
  *
  * Reglas de negocio:
  *  IN-01 Un cliente no puede tener períodos PENDIENTE/ACTIVA superpuestos.
  *  IN-02 La fecha de inicio no puede ser pasada (por defecto, hoy).
  *  IN-03 fechaFin = fechaInicio + duración del plan.
- *  IN-04 El administrador activa la inscripción (PENDIENTE → ACTIVA) sin pagos.
+ *  IN-04 El administrador activa la inscripción (PENDIENTE → ACTIVA) registrando fechaActivacion.
  *  IN-05 VENCIDA y CANCELADA no se reactivan: se renueva creando otra inscripción.
- *  IN-06 Renovar crea una inscripción nueva que inicia el día siguiente al fin de la base
- *        (o hoy si la base venció hace tiempo). La base se conserva: el historial no se pierde.
- *  IN-07 Solo se renueva desde ACTIVA o VENCIDA y con el plan activo.
+ *  IN-06 Renovar crea una inscripción nueva con inscripcionOrigenId = idBase,
+ *        iniciando el día siguiente al fin de la base (o hoy si ya había vencido).
+ *  IN-07 Solo se renueva desde ACTIVA o VENCIDA, con el plan activo y sin duplicar renovación.
  *  IN-08 ACTIVA con fechaFin pasada se considera VENCIDA.
  *  IN-09 Alerta: quedan 7 o menos días hábiles (sin sábados, domingos ni feriados).
- *  IN-10 Solo se pueden eliminar inscripciones PENDIENTE (errores de registro); el resto se cancela.
+ *  IN-10 Cancelar registra fechaCancelacion y motivoCancelacion.
+ *  IN-11 Bloqueo pesimista por cliente al registrar y renovar para evitar condiciones de carrera.
  */
 @Service
 @Transactional(readOnly = true)
@@ -113,11 +116,10 @@ public class InscripcionService {
 
     // ── Operaciones de escritura ──────────────────────────────────────────────
 
-    /** Asigna un plan a un cliente. La inscripción nace PENDIENTE. */
+    /** Asigna un plan a un cliente adquiriendo bloqueo pesimista sobre el socio. */
     @Transactional
     public InscripcionResponseDTO registrar(InscripcionRequestDTO request) {
-        Cliente cliente = clienteRepository.findById(request.clienteId())
-                .orElseThrow(() -> new RecursoNoEncontradoException("Cliente", request.clienteId()));
+        Cliente cliente = obtenerClienteConBloqueo(request.clienteId());
         Membresia membresia = membresiaRepository.findById(request.membresiaId())
                 .orElseThrow(() -> new RecursoNoEncontradoException("Membresía", request.membresiaId()));
 
@@ -133,11 +135,11 @@ public class InscripcionService {
         inscripcionRepository.marcarVencidas(hoy);
         validarSinSuperposicion(cliente.getId(), inicio, fin, -1L);
 
-        Inscripcion inscripcion = nuevaInscripcion(cliente, membresia, inicio, fin, request.observaciones());
+        Inscripcion inscripcion = nuevaInscripcion(cliente, membresia, inicio, fin, request.observaciones(), null);
         return toDTO(inscripcionRepository.save(inscripcion));
     }
 
-    /** Activa una inscripción PENDIENTE (reemplaza la antigua activación por pago). */
+    /** Activa una inscripción PENDIENTE registrando la fecha y hora exacta de activación. */
     @Transactional
     public InscripcionResponseDTO activar(Long id) {
         Inscripcion inscripcion = obtener(id);
@@ -150,11 +152,19 @@ public class InscripcionService {
                     "No se puede activar una inscripción cuyo período ya terminó. Cree o renueve una nueva.");
         }
         inscripcion.setEstado(EstadoInscripcion.ACTIVA);
+        inscripcion.setFechaActivacion(ahora());
         return toDTO(inscripcionRepository.save(inscripcion));
     }
 
+    /** Cancela una inscripción sin motivo explícito (usa motivo predeterminado). */
     @Transactional
     public InscripcionResponseDTO cancelar(Long id) {
+        return cancelar(id, null);
+    }
+
+    /** Cancela una inscripción PENDIENTE o ACTIVA registrando fecha y motivo de cancelación. */
+    @Transactional
+    public InscripcionResponseDTO cancelar(Long id, String motivo) {
         Inscripcion inscripcion = obtener(id);
         if (inscripcion.getEstado() != EstadoInscripcion.PENDIENTE
                 && inscripcion.getEstado() != EstadoInscripcion.ACTIVA) {
@@ -163,15 +173,22 @@ public class InscripcionService {
                             + inscripcion.getEstado());
         }
         inscripcion.setEstado(EstadoInscripcion.CANCELADA);
+        inscripcion.setFechaCancelacion(ahora());
+        inscripcion.setMotivoCancelacion(
+                (motivo != null && !motivo.isBlank()) ? motivo.trim() : "Cancelada por el administrador"
+        );
         return toDTO(inscripcionRepository.save(inscripcion));
     }
 
     /**
-     * Renueva una inscripción: crea una NUEVA (PENDIENTE) y deja intacta la anterior.
+     * Renueva una inscripción creando una NUEVA (PENDIENTE), vinculándola mediante
+     * inscripcionOrigenId y dejando intacta la inscripción anterior.
      */
     @Transactional
     public InscripcionResponseDTO renovar(Long idBase, String observaciones) {
         Inscripcion base = obtener(idBase);
+        Cliente cliente = clienteRepository.findByIdForUpdate(base.getCliente().getId())
+                .orElse(base.getCliente());
         LocalDate hoy = hoy();
 
         if (base.getEstado() != EstadoInscripcion.ACTIVA && base.getEstado() != EstadoInscripcion.VENCIDA) {
@@ -184,19 +201,24 @@ public class InscripcionService {
                     + "' ya no está activo. Cree una nueva inscripción con un plan vigente.");
         }
 
+        if (inscripcionRepository.existsRenovacionDeOrigen(base.getId())) {
+            throw new ReglaDeNegocioException(
+                    "La inscripción #" + base.getId() + " ya cuenta con una renovación registrada.");
+        }
+
         LocalDate inicio = base.getFechaFin().plusDays(1);
         if (inicio.isBefore(hoy)) {
-            inicio = hoy; // no se registran períodos en el pasado
+            inicio = hoy;
         }
         LocalDate fin = inicio.plusDays(plan.getDuracionDias());
 
         inscripcionRepository.marcarVencidas(hoy);
-        validarSinSuperposicion(base.getCliente().getId(), inicio, fin, base.getId());
+        validarSinSuperposicion(cliente.getId(), inicio, fin, base.getId());
 
         String nota = (observaciones != null && !observaciones.isBlank())
                 ? observaciones.trim()
                 : "Renovación de la inscripción #" + idBase;
-        Inscripcion nueva = nuevaInscripcion(base.getCliente(), plan, inicio, fin, nota);
+        Inscripcion nueva = nuevaInscripcion(cliente, plan, inicio, fin, nota, base.getId());
         return toDTO(inscripcionRepository.save(nueva));
     }
 
@@ -223,6 +245,19 @@ public class InscripcionService {
         return LocalDate.now(clock);
     }
 
+    private LocalDateTime ahora() {
+        return LocalDateTime.now(clock);
+    }
+
+    private Cliente obtenerClienteConBloqueo(Long clienteId) {
+        if (clienteId == null) {
+            throw new ReglaDeNegocioException("El ID del cliente es obligatorio.");
+        }
+        return clienteRepository.findByIdForUpdate(clienteId)
+                .or(() -> clienteRepository.findById(clienteId))
+                .orElseThrow(() -> new RecursoNoEncontradoException("Cliente", clienteId));
+    }
+
     private Inscripcion obtener(Long id) {
         return inscripcionRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Inscripción", id));
@@ -243,7 +278,13 @@ public class InscripcionService {
         }
     }
 
-    private Inscripcion nuevaInscripcion(Cliente cliente, Membresia plan, LocalDate inicio, LocalDate fin, String obs) {
+    private Inscripcion nuevaInscripcion(
+            Cliente cliente,
+            Membresia plan,
+            LocalDate inicio,
+            LocalDate fin,
+            String obs,
+            Long origenId) {
         Inscripcion i = new Inscripcion();
         i.setCliente(cliente);
         i.setMembresia(plan);
@@ -252,6 +293,7 @@ public class InscripcionService {
         i.setEstado(EstadoInscripcion.PENDIENTE);
         i.setFechaRegistro(hoy());
         i.setObservaciones(obs);
+        i.setInscripcionOrigenId(origenId);
         return i;
     }
 
@@ -270,7 +312,6 @@ public class InscripcionService {
         boolean vencida = ins.getEstado() == EstadoInscripcion.VENCIDA
                 || (ins.getEstado() == EstadoInscripcion.ACTIVA && fin != null && fin.isBefore(hoy));
 
-        // El estado mostrado refleja la vigencia real (una ACTIVA con fecha pasada es VENCIDA).
         EstadoInscripcion estadoEfectivo = vencida ? EstadoInscripcion.VENCIDA : ins.getEstado();
 
         boolean enCurso = fin != null && !fin.isBefore(hoy);
@@ -291,6 +332,10 @@ public class InscripcionService {
                 diasRestantes,
                 diasHabiles,
                 esProximaAVencer(ins),
-                vencida);
+                vencida,
+                ins.getInscripcionOrigenId(),
+                ins.getFechaActivacion(),
+                ins.getFechaCancelacion(),
+                ins.getMotivoCancelacion());
     }
 }

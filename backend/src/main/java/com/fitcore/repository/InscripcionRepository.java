@@ -27,7 +27,6 @@ public interface InscripcionRepository extends JpaRepository<Inscripcion, Long> 
     /**
      * ¿Existe para el cliente una inscripción PENDIENTE o ACTIVA cuyo período se
      * superpone con [inicio, fin]? Evita duplicados y períodos superpuestos.
-     * Las inscripciones VENCIDA/CANCELADA no cuentan. Se usa excluirId = -1 si no se excluye ninguna.
      */
     @Query("""
             SELECT COUNT(i) > 0 FROM Inscripcion i
@@ -42,6 +41,16 @@ public interface InscripcionRepository extends JpaRepository<Inscripcion, Long> 
                                @Param("inicio") LocalDate inicio,
                                @Param("fin") LocalDate fin,
                                @Param("excluirId") Long excluirId);
+
+    /**
+     * Verifica si una inscripción base ya fue renovada mediante otra inscripción no cancelada.
+     */
+    @Query("""
+            SELECT COUNT(i) > 0 FROM Inscripcion i
+            WHERE i.inscripcionOrigenId = :origenId
+              AND i.estado <> com.fitcore.model.EstadoInscripcion.CANCELADA
+            """)
+    boolean existsRenovacionDeOrigen(@Param("origenId") Long origenId);
 
     /** Marca como VENCIDA toda inscripción ACTIVA cuya fecha de fin ya pasó. Conserva el historial. */
     @Modifying

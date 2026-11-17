@@ -40,6 +40,10 @@ erDiagram
         varchar(20) estado
         date fecha_registro
         varchar(300) observaciones
+        bigint inscripcion_origen_id FK
+        timestamp fecha_activacion
+        timestamp fecha_cancelacion
+        varchar(300) motivo_cancelacion
     }
 
     ENTRENADORES {
@@ -83,10 +87,13 @@ erDiagram
         integer descanso_seg
         varchar(300) notas
         integer orden
+        boolean completado
+        double_precision peso_kg
     }
 
     CLIENTES ||--o{ INSCRIPCIONES : "contrata (historial)"
     MEMBRESIAS ||--o{ INSCRIPCIONES : "define condiciones"
+    INSCRIPCIONES |o--o{ INSCRIPCIONES : "renueva desde (inscripcion_origen_id)"
     CLIENTES ||--o{ RUTINAS : "recibe (historial)"
     ENTRENADORES ||--o{ RUTINAS : "supervisa"
     RUTINAS ||--o{ DIAS_RUTINA : "organiza (UK rutina_id + dia_semana)"
@@ -103,6 +110,8 @@ erDiagram
 2. **Restricción de unicidad `uk_dias_rutina_rutina_dia (rutina_id, dia_semana)` y prevención de `SQLState: 23505`**:
    - La tabla `dias_rutina` y la entidad `DiaRutina` incluyen `@UniqueConstraint(name = "uk_dias_rutina_rutina_dia", columnNames = {"rutina_id", "dia_semana"})` para impedir que una misma rutina tenga dos veces el mismo día (por ejemplo, dos `LUNES`).
    - Al actualizar una rutina en `RutinaService.aplicarDatos(...)`, el servicio **reutiliza las instancias existentes de `DiaRutina` cuyo `DiaSemana` coincide** y solo elimina mediante `removeIf(...)` los días que fueron descartados, evitando que Hibernate ejecute un `INSERT` duplicado antes del `DELETE` de huérfanos (`SQLState: 23505`).
-3. **Preservación de fechas históricas en `V1__membresias_rutinas_auth.sql`**:
-   - En PostgreSQL, la columna `inscripciones.fecha_registro` se agrega inicialmente sin `DEFAULT`, se puebla con `COALESCE(fecha_inicio, CURRENT_DATE)` para preservar la fecha histórica real de cada inscripción antigua y, finalmente, se configura `SET DEFAULT CURRENT_DATE` para registros futuros.
-   - Se utiliza `ON DELETE RESTRICT` en las claves foráneas para impedir borrados accidentales en cascada del historial.
+   - Las colecciones `Rutina.dias` y `DiaRutina.ejercicios` cuentan con `@BatchSize(size = 50)` para evitar consultas `N+1` al calcular los indicadores de progreso con `spring.jpa.open-in-view=false`.
+3. **Preservación de fechas históricas en `V1__membresias_rutinas_auth.sql` y `V2__progreso_rutinas_y_trazabilidad_inscripciones.sql`**:
+   - En PostgreSQL (`V1`), la columna `inscripciones.fecha_registro` se agrega inicialmente sin `DEFAULT`, se puebla con `COALESCE(fecha_inicio, CURRENT_DATE)` para preservar la fecha histórica real de cada inscripción antigua y, finalmente, se configura `SET DEFAULT CURRENT_DATE` para registros futuros.
+   - En `V2`, se añaden `completado` (`BOOLEAN NOT NULL DEFAULT FALSE`) y `peso_kg` (`0 <= peso_kg <= 1000`) en `ejercicios_rutina`, así como `inscripcion_origen_id`, `fecha_activacion`, `fecha_cancelacion` y `motivo_cancelacion` en `inscripciones`, poblando con backfill seguro el motivo de las cancelaciones históricas previas a `V2`.
+   - Se utiliza `ON DELETE RESTRICT` en las claves foráneas principales y `ON DELETE SET NULL` en `inscripcion_origen_id` para impedir borrados accidentales en cascada del historial.

@@ -41,19 +41,20 @@ function actualizarContadoresRutinas() {
 function agregarFilaEjercicio(contenedorEjercicios, datos = {}) {
     const div = document.createElement("div");
     div.className = "ejercicio-fila";
+    div.dataset.completado = datos.completado === true ? "true" : "false";
     div.innerHTML = `
         <div class="row g-2 align-items-center">
-            <div class="col-12 col-md-5">
+            <div class="col-12 col-md-4">
                 <input type="text" class="form-control form-control-sm ej-nombre"
                        placeholder="Ejercicio (ej. Press banca)" maxlength="100"
                        value="${datos.nombre ?? ""}" required>
             </div>
-            <div class="col-4 col-md-2">
+            <div class="col-3 col-md-2">
                 <input type="number" class="form-control form-control-sm ej-series"
                        placeholder="Series" min="1" max="20" title="Series"
                        value="${datos.series ?? 4}" required>
             </div>
-            <div class="col-4 col-md-2">
+            <div class="col-3 col-md-2">
                 <input type="number" class="form-control form-control-sm ej-reps"
                        placeholder="Reps" min="1" max="200" title="Repeticiones"
                        value="${datos.repeticiones ?? 12}" required>
@@ -63,7 +64,10 @@ function agregarFilaEjercicio(contenedorEjercicios, datos = {}) {
                        placeholder="Seg" min="0" max="3600" title="Descanso (seg)"
                        value="${datos.descansoSeg ?? 60}">
             </div>
-            <div class="col-1 text-end">
+            <div class="col-3 col-md-2 d-flex gap-1 align-items-center">
+                <input type="number" class="form-control form-control-sm ej-peso"
+                       placeholder="Kg" min="0" max="1000" step="0.5" title="Peso utilizado (0 a 1000 kg)"
+                       value="${datos.pesoKg ?? ""}">
                 <button type="button" class="btn btn-sm btn-outline-danger btn-quitar-ej" title="Quitar ejercicio">
                     <i class="fa-solid fa-trash"></i>
                 </button>
@@ -104,7 +108,7 @@ function agregarBloqueDia(datos = {}) {
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-        <div class="small text-muted mb-1">Ejercicios (Nombre · Series · Repeticiones · Descanso en seg):</div>
+        <div class="small text-muted mb-1">Ejercicios (Nombre · Series · Reps · Descanso seg · Peso kg):</div>
         <div class="contenedor-ejercicios"></div>
         <button type="button" class="btn btn-sm btn-link text-decoration-none px-0 fw-semibold btn-agregar-ej">
             <i class="fa-solid fa-plus me-1"></i>Agregar ejercicio a este día
@@ -133,16 +137,21 @@ function construirDiasDesdeFormulario() {
         const nombreDia = bloque.querySelector(".dia-nombre").value.trim() || null;
         const filasEj = Array.from(bloque.querySelectorAll(".ejercicio-fila"));
 
-        const ejercicios = filasEj.map((f, idxEj) => ({
-            nombre: f.querySelector(".ej-nombre").value.trim(),
-            series: parseInt(f.querySelector(".ej-series").value, 10) || 1,
-            repeticiones: parseInt(f.querySelector(".ej-reps").value, 10) || 1,
-            descansoSeg: f.querySelector(".ej-descanso").value !== ""
-                ? parseInt(f.querySelector(".ej-descanso").value, 10)
-                : 60,
-            notas: f.querySelector(".ej-notas").value.trim() || null,
-            orden: idxEj + 1
-        }));
+        const ejercicios = filasEj.map((f, idxEj) => {
+            const pesoRaw = f.querySelector(".ej-peso").value;
+            return {
+                nombre: f.querySelector(".ej-nombre").value.trim(),
+                series: parseInt(f.querySelector(".ej-series").value, 10) || 1,
+                repeticiones: parseInt(f.querySelector(".ej-reps").value, 10) || 1,
+                descansoSeg: f.querySelector(".ej-descanso").value !== ""
+                    ? parseInt(f.querySelector(".ej-descanso").value, 10)
+                    : 60,
+                notas: f.querySelector(".ej-notas").value.trim() || null,
+                orden: idxEj + 1,
+                completado: f.dataset.completado === "true",
+                pesoKg: pesoRaw !== "" ? parseFloat(pesoRaw) : null
+            };
+        });
 
         return {
             diaSemana,
@@ -253,6 +262,11 @@ function renderizarTablaRutinas() {
                <div class="small text-muted">${rutina.duracionSemanas ? `${rutina.duracionSemanas} sem.` : "Continua"}</div>`
             : `<span class="small text-muted">${rutina.fechaAsignacion || "-"}</span>`;
 
+        const totalEj = rutina.totalEjercicios ?? 0;
+        const compEj = rutina.ejerciciosCompletados ?? 0;
+        const pct = rutina.porcentajeProgreso ?? 0;
+        const colorBarra = pct === 100 ? "#10b981" : "#2563eb";
+
         fila.innerHTML = `
             <td class="text-muted fw-semibold">#${rutina.id}</td>
             <td>
@@ -261,16 +275,20 @@ function renderizarTablaRutinas() {
             </td>
             <td class="fw-semibold">${rutina.nombreCliente || obtenerNombre(rutina.cliente)}</td>
             <td>${rutina.nombreEntrenador || obtenerNombre(rutina.entrenador)}</td>
-            <td>
-                <span class="badge bg-primary">
-                    ${rutina.totalDias ?? 0} día(s) · ${rutina.totalEjercicios ?? 0} ej.
-                </span>
+            <td style="min-width: 155px;">
+                <div class="d-flex justify-content-between align-items-center small mb-1">
+                    <span class="fw-semibold">${rutina.totalDias ?? 0}d · ${compEj}/${totalEj} ej.</span>
+                    <span class="badge ${pct === 100 && totalEj > 0 ? "bg-success" : "bg-primary"}">${pct}%</span>
+                </div>
+                <div class="metric-bar-track" style="height: 6px;">
+                    <div class="metric-bar-segment" style="width: ${pct}%; background: ${colorBarra};"></div>
+                </div>
             </td>
             <td>${vigencia}</td>
             <td>${estadoBadge}</td>
             <td class="text-nowrap">
-                <button type="button" class="btn btn-info text-white btn-sm me-1" title="Ver días y ejercicios" onclick="verDetalleRutina(${rutina.id})">
-                    <i class="fa-solid fa-eye"></i>
+                <button type="button" class="btn btn-info text-white btn-sm me-1" title="Ver y registrar progreso de ejercicios" onclick="verDetalleRutina(${rutina.id})">
+                    <i class="fa-solid fa-list-check"></i>
                 </button>
                 <button type="button" class="btn btn-warning btn-sm me-1" title="Editar rutina" onclick="editarRutina(${rutina.id})">
                     <i class="fa-solid fa-pen"></i>
@@ -374,6 +392,114 @@ formRutina.addEventListener("submit", async evento => {
     }
 });
 
+function renderizarContenidoModalRutina(r) {
+    const cuerpo = document.getElementById("cuerpoDetalleRutina");
+    document.getElementById("tituloModalDetalleRutina").textContent = `${r.nombre} (#${r.id})`;
+    document.getElementById("subtituloModalDetalleRutina").textContent =
+        `Cliente: ${r.nombreCliente} · Entrenador: ${r.nombreEntrenador} · Objetivo: ${r.objetivo}`;
+
+    const totalEj = r.totalEjercicios ?? 0;
+    const compEj = r.ejerciciosCompletados ?? 0;
+    const pendEj = Math.max(0, totalEj - compEj);
+    const pct = r.porcentajeProgreso ?? 0;
+    const colorBarra = pct === 100 ? "#10b981" : "#2563eb";
+
+    let html = `
+        <div id="alertaModalRutina" class="alert d-none py-2 px-3 small mb-3" role="alert"></div>
+        <div class="p-3 rounded-3 border bg-light mb-3 small">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                <div>
+                    <strong>Avance de la rutina:</strong>
+                    <span class="ms-1 badge ${pct === 100 && totalEj > 0 ? "bg-success" : "bg-primary"}">${pct}% completado</span>
+                </div>
+                <div class="text-muted">
+                    <strong class="text-success">${compEj} completado(s)</strong> ·
+                    <strong>${pendEj} pendiente(s)</strong> (Total: ${totalEj})
+                </div>
+            </div>
+            <div class="metric-bar-track mb-2" style="height: 10px;">
+                <div class="metric-bar-segment" style="width: ${pct}%; background: ${colorBarra};"></div>
+            </div>
+            <div class="mt-2">
+                <strong>Objetivo:</strong> <span class="text-primary fw-bold">${r.objetivo}</span> ·
+                <strong>Vigencia:</strong> ${r.fechaInicio || r.fechaAsignacion || "-"}
+                ${r.fechaFin ? ` al <strong>${r.fechaFin}</strong>` : ""}
+                ${r.duracionSemanas ? ` (${r.duracionSemanas} semanas)` : ""}
+            </div>
+            ${r.descripcion ? `<div class="mt-1"><strong>Indicaciones:</strong> ${r.descripcion}</div>` : ""}
+        </div>
+    `;
+
+    if (!r.dias || r.dias.length === 0) {
+        html += '<div class="alert alert-light border mb-0">Esta rutina no tiene días de ejercicios detallados.</div>';
+    } else {
+        r.dias.forEach(d => {
+            const filas = (d.ejercicios || []).map(ej => {
+                const esComp = ej.completado === true;
+                const pesoVal = ej.pesoKg != null ? ej.pesoKg : "";
+                return `
+                    <tr>
+                        <td>
+                            <div class="fw-semibold ${esComp ? "text-decoration-line-through text-muted" : ""}">${ej.nombre}</div>
+                            ${ej.notas ? `<div class="text-muted small">${ej.notas}</div>` : ""}
+                        </td>
+                        <td><span class="badge bg-primary">${ej.series}</span></td>
+                        <td><strong>${ej.repeticiones}</strong></td>
+                        <td>${ej.descansoSeg ?? 60} seg</td>
+                        <td style="width: 145px;">
+                            <div class="input-group input-group-sm">
+                                <input type="number" class="form-control form-control-sm"
+                                       id="peso-ej-${ej.id}" min="0" max="1000" step="0.5" placeholder="Kg"
+                                       value="${pesoVal}">
+                                <button type="button" class="btn btn-outline-primary"
+                                        id="btn-peso-ej-${ej.id}"
+                                        title="Guardar peso (kg)"
+                                        onclick="guardarPesoEjercicio(${r.id}, ${ej.id})">
+                                    <i class="fa-solid fa-floppy-disk"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td class="text-end text-nowrap">
+                            <button type="button"
+                                    class="btn btn-sm ${esComp ? "btn-success" : "btn-outline-secondary"}"
+                                    onclick="cambiarEstadoEjercicio(${r.id}, ${ej.id})">
+                                <i class="fa-solid ${esComp ? "fa-circle-check" : "fa-circle"} me-1"></i>
+                                ${esComp ? "Completado" : "Pendiente"}
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+
+            html += `
+                <div class="border rounded-3 p-3 mb-3 bg-white shadow-xs">
+                    <h6 class="fw-bold text-primary mb-2">
+                        <i class="fa-solid fa-calendar-day me-1"></i>
+                        ${d.diaSemana}${d.nombreDia ? ` — ${d.nombreDia}` : ""}
+                    </h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Ejercicio</th>
+                                    <th>Series</th>
+                                    <th>Repeticiones</th>
+                                    <th>Descanso</th>
+                                    <th>Peso (kg)</th>
+                                    <th class="text-end">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>${filas}</tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    cuerpo.innerHTML = html;
+}
+
 async function verDetalleRutina(id) {
     const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("modalDetalleRutina"));
     const cuerpo = document.getElementById("cuerpoDetalleRutina");
@@ -384,63 +510,83 @@ async function verDetalleRutina(id) {
         const res = await fetch(`${API_RUTINAS}/${id}`);
         if (!res.ok) throw new Error("No se pudo obtener el detalle de la rutina");
         const r = await res.json();
-
-        document.getElementById("tituloModalDetalleRutina").textContent = `${r.nombre} (#${r.id})`;
-        document.getElementById("subtituloModalDetalleRutina").textContent =
-            `Cliente: ${r.nombreCliente} · Entrenador: ${r.nombreEntrenador} · Objetivo: ${r.objetivo}`;
-
-        let html = `
-            <div class="p-3 rounded-3 border bg-light mb-3 small">
-                <div><strong>Objetivo:</strong> <span class="text-primary fw-bold">${r.objetivo}</span></div>
-                <div class="mt-1"><strong>Vigencia:</strong> ${r.fechaInicio || r.fechaAsignacion || "-"}
-                ${r.fechaFin ? ` al <strong>${r.fechaFin}</strong>` : ""}
-                ${r.duracionSemanas ? ` (${r.duracionSemanas} semanas)` : ""}</div>
-                ${r.descripcion ? `<div class="mt-1"><strong>Indicaciones:</strong> ${r.descripcion}</div>` : ""}
-            </div>
-        `;
-
-        if (!r.dias || r.dias.length === 0) {
-            html += '<div class="alert alert-light border mb-0">Esta rutina no tiene días de ejercicios detallados.</div>';
-        } else {
-            r.dias.forEach(d => {
-                const filas = (d.ejercicios || []).map(ej => `
-                    <tr>
-                        <td class="fw-semibold">${ej.nombre}</td>
-                        <td><span class="badge bg-primary">${ej.series}</span></td>
-                        <td><strong>${ej.repeticiones}</strong></td>
-                        <td>${ej.descansoSeg ?? 60} seg</td>
-                        <td class="text-muted small">${ej.notas || "-"}</td>
-                    </tr>
-                `).join("");
-
-                html += `
-                    <div class="border rounded-3 p-3 mb-3 bg-white shadow-xs">
-                        <h6 class="fw-bold text-primary mb-2">
-                            <i class="fa-solid fa-calendar-day me-1"></i>
-                            ${d.diaSemana}${d.nombreDia ? ` — ${d.nombreDia}` : ""}
-                        </h6>
-                        <div class="table-responsive">
-                            <table class="table table-sm mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Ejercicio</th>
-                                        <th>Series</th>
-                                        <th>Repeticiones</th>
-                                        <th>Descanso</th>
-                                        <th>Notas</th>
-                                    </tr>
-                                </thead>
-                                <tbody>${filas}</tbody>
-                            </table>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        cuerpo.innerHTML = html;
+        renderizarContenidoModalRutina(r);
     } catch (error) {
         cuerpo.innerHTML = `<div class="text-danger">${error.message}</div>`;
+    }
+}
+
+async function cambiarEstadoEjercicio(rutinaId, ejercicioId) {
+    try {
+        const res = await fetch(`${API_RUTINAS}/${rutinaId}/ejercicios/${ejercicioId}/toggle-completado`, {
+            method: "PATCH"
+        });
+        if (!res.ok) {
+            const msg = await extraerMensajeError(res, "No se pudo actualizar el estado del ejercicio");
+            throw new Error(msg);
+        }
+        const actualizada = await res.json();
+        renderizarContenidoModalRutina(actualizada);
+
+        const idx = rutinasCargadas.findIndex(r => Number(r.id) === Number(rutinaId));
+        if (idx !== -1) {
+            rutinasCargadas[idx] = actualizada;
+            renderizarTablaRutinas();
+        }
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+async function guardarPesoEjercicio(rutinaId, ejercicioId) {
+    const input = document.getElementById(`peso-ej-${ejercicioId}`);
+    if (!input) return;
+    const raw = input.value.trim();
+    const pesoKg = raw === "" ? null : parseFloat(raw);
+
+    if (pesoKg !== null && (isNaN(pesoKg) || pesoKg < 0 || pesoKg > 1000)) {
+        mostrarAlertaUI("alertaModalRutina", "El peso utilizado debe estar entre 0 y 1000 kg.", "warning", 4000);
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_RUTINAS}/${rutinaId}/ejercicios/${ejercicioId}/peso`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ pesoKg })
+        });
+        if (!res.ok) {
+            const msg = await extraerMensajeError(res, "No se pudo actualizar el peso del ejercicio");
+            throw new Error(msg);
+        }
+        const actualizada = await res.json();
+        renderizarContenidoModalRutina(actualizada);
+
+        const idx = rutinasCargadas.findIndex(r => Number(r.id) === Number(rutinaId));
+        if (idx !== -1) {
+            rutinasCargadas[idx] = actualizada;
+            renderizarTablaRutinas();
+        }
+
+        const btn = document.getElementById(`btn-peso-ej-${ejercicioId}`);
+        if (btn) {
+            btn.className = "btn btn-success";
+            btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+            setTimeout(() => {
+                if (btn.isConnected) {
+                    btn.className = "btn btn-outline-primary";
+                    btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>';
+                }
+            }, 1800);
+        }
+        mostrarAlertaUI(
+            "alertaModalRutina",
+            pesoKg !== null ? `Peso actualizado a ${pesoKg} kg correctamente.` : "Peso restablecido (sin carga externa).",
+            "success",
+            2800
+        );
+    } catch (error) {
+        mostrarAlertaUI("alertaModalRutina", error.message, "danger", 4500);
     }
 }
 

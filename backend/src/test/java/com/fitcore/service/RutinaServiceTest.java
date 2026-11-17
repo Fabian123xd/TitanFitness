@@ -262,4 +262,98 @@ class RutinaServiceTest {
         assertThrows(RecursoNoEncontradoException.class, () -> service.listarPorCliente(5L));
         assertThrows(RecursoNoEncontradoException.class, () -> service.listarPorEntrenador(6L));
     }
+
+    @Test
+    @DisplayName("Seguimiento de progreso: marcar y desmarcar ejercicios calcula porcentajeProgreso exacto")
+    void toggleEjercicioCompletadoYPorcentaje() {
+        Rutina r = new Rutina();
+        r.setId(20L);
+        r.setNombre("Progreso");
+        r.setObjetivo("Fuerza");
+        r.setCliente(cliente(1L));
+        r.setEntrenador(entrenador(2L, true));
+        r.setActiva(true);
+
+        com.fitcore.model.DiaRutina dia = new com.fitcore.model.DiaRutina();
+        dia.setId(1L);
+        dia.setDiaSemana(DiaSemana.LUNES);
+
+        com.fitcore.model.EjercicioRutina ej1 = new com.fitcore.model.EjercicioRutina();
+        ej1.setId(101L);
+        ej1.setNombre("Sentadilla");
+        ej1.setSeries(4);
+        ej1.setRepeticiones(10);
+        ej1.setCompletado(false);
+
+        com.fitcore.model.EjercicioRutina ej2 = new com.fitcore.model.EjercicioRutina();
+        ej2.setId(102L);
+        ej2.setNombre("Prensa");
+        ej2.setSeries(4);
+        ej2.setRepeticiones(12);
+        ej2.setCompletado(false);
+
+        dia.agregarEjercicio(ej1);
+        dia.agregarEjercicio(ej2);
+        r.agregarDia(dia);
+
+        when(rutinaRepository.findByIdConRelaciones(20L)).thenReturn(Optional.of(r));
+        stubSave();
+
+        // Marcar primer ejercicio -> 1/2 = 50%
+        RutinaResponseDTO dto1 = service.toggleEjercicioCompletado(20L, 101L);
+        assertEquals(1, dto1.ejerciciosCompletados());
+        assertEquals(50, dto1.porcentajeProgreso());
+        assertTrue(dto1.dias().get(0).ejercicios().get(0).completado());
+
+        // Marcar segundo ejercicio -> 2/2 = 100%
+        RutinaResponseDTO dto2 = service.toggleEjercicioCompletado(20L, 102L);
+        assertEquals(2, dto2.ejerciciosCompletados());
+        assertEquals(100, dto2.porcentajeProgreso());
+
+        // Desmarcar primer ejercicio -> 1/2 = 50%
+        RutinaResponseDTO dto3 = service.toggleEjercicioCompletado(20L, 101L);
+        assertEquals(1, dto3.ejerciciosCompletados());
+        assertEquals(50, dto3.porcentajeProgreso());
+    }
+
+    @Test
+    @DisplayName("Actualizar peso en ejercicio: acepta valores positivos/cero y rechaza negativos o ejercicio ajeno")
+    void actualizarPesoEjercicioValidaciones() {
+        Rutina r = new Rutina();
+        r.setId(20L);
+        r.setNombre("Progreso");
+        r.setObjetivo("Fuerza");
+        r.setCliente(cliente(1L));
+        r.setEntrenador(entrenador(2L, true));
+
+        com.fitcore.model.DiaRutina dia = new com.fitcore.model.DiaRutina();
+        dia.setId(1L);
+        dia.setDiaSemana(DiaSemana.LUNES);
+
+        com.fitcore.model.EjercicioRutina ej = new com.fitcore.model.EjercicioRutina();
+        ej.setId(101L);
+        ej.setNombre("Press banca");
+        ej.setSeries(4);
+        ej.setRepeticiones(10);
+        dia.agregarEjercicio(ej);
+        r.agregarDia(dia);
+
+        when(rutinaRepository.findByIdConRelaciones(20L)).thenReturn(Optional.of(r));
+        stubSave();
+
+        RutinaResponseDTO actualizado = service.actualizarPesoEjercicio(20L, 101L, 62.5);
+        assertEquals(62.5, actualizado.dias().get(0).ejercicios().get(0).pesoKg());
+
+        // Peso negativo -> ReglaDeNegocioException
+        assertThrows(ReglaDeNegocioException.class,
+                () -> service.actualizarPesoEjercicio(20L, 101L, -10.0));
+
+        // Peso superior a 1000 kg -> ReglaDeNegocioException
+        assertThrows(ReglaDeNegocioException.class,
+                () -> service.actualizarPesoEjercicio(20L, 101L, 1000.5));
+
+        // Ejercicio que no pertenece a la rutina -> RecursoNoEncontradoException
+        assertThrows(RecursoNoEncontradoException.class,
+                () -> service.toggleEjercicioCompletado(20L, 999L));
+    }
 }

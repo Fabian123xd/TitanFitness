@@ -28,7 +28,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Servicio de lógica de negocio para la gestión de rutinas de entrenamiento.
+ * Servicio de lógica de negocio para la gestión de rutinas de entrenamiento
+ * y seguimiento del progreso de ejercicios.
  *
  * Reglas de negocio aplicadas:
  *  RU-01 No se asigna una rutina a un entrenador inactivo.
@@ -37,10 +38,9 @@ import java.util.Set;
  *  RU-04 fechaFin = fechaInicio + duracionSemanas * 7 días (si hay duración).
  *  RU-05 Un mismo día de la semana no puede repetirse dentro de una rutina.
  *  RU-06 Los ejercicios y días se ordenan por su campo orden.
- *  RU-07 Al actualizar una rutina existente, la colección de días se sincroniza
- *        reutilizando las entidades DiaRutina cuyo diaSemana coincida y eliminando
- *        los días descartados antes de insertar nuevos, evitando violaciones
- *        SQLState 23505 en la restricción UNIQUE (rutina_id, dia_semana).
+ *  RU-07 Sincronización de días por DiaSemana para evitar SQLState 23505.
+ *  RU-08 Seguimiento de progreso: porcentajeProgreso = round(completados * 100.0 / total),
+ *        devolviendo 0% cuando la rutina no tiene ejercicios.
  */
 @Service
 @Transactional(readOnly = true)
@@ -120,7 +120,6 @@ public class RutinaService {
         Entrenador entrenador = entrenadorRepository.findById(request.entrenadorId())
                 .orElseThrow(() -> new RecursoNoEncontradoException("Entrenador", request.entrenadorId()));
 
-        // Solo se exige entrenador activo si se (re)asigna a otro entrenador.
         if (!entrenador.getId().equals(rutina.getEntrenador().getId())) {
             validarEntrenadorActivo(entrenador);
         }
@@ -150,11 +149,62 @@ public class RutinaService {
         return toDTO(rutinaRepository.save(rutina), false);
     }
 
+    /**
+     * Marca o desmarca un ejercicio como completado dentro de la rutina indicada
+     * y recalcula el porcentaje de progreso.
+     */
+    @Transactional
+    public RutinaResponseDTO toggleEjercicioCompletado(Long rutinaId, Long ejercicioId) {
+        Rutina rutina = obtener(rutinaId);
+        EjercicioRutina ejercicio = buscarEjercicioEnRutina(rutina, ejercicioId);
+        ejercicio.setCompletado(!Boolean.TRUE.equals(ejercicio.getCompletado()));
+        return toDTO(rutinaRepository.save(rutina), true);
+    }
+
+    /**
+     * Registra o actualiza el peso utilizado (kg) en un ejercicio perteneciente a la rutina.
+     */
+    @Transactional
+    public RutinaResponseDTO actualizarPesoEjercicio(Long rutinaId, Long ejercicioId, Double pesoKg) {
+        validarRangoPeso(pesoKg);
+        Rutina rutina = obtener(rutinaId);
+        EjercicioRutina ejercicio = buscarEjercicioEnRutina(rutina, ejercicioId);
+        ejercicio.setPesoKg(pesoKg);
+        return toDTO(rutinaRepository.save(rutina), true);
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private void validarRangoPeso(Double pesoKg) {
+        if (pesoKg == null) {
+            return;
+        }
+        if (pesoKg < 0) {
+            throw new ReglaDeNegocioException("El peso utilizado no puede ser negativo.");
+        }
+        if (pesoKg > 1000.0) {
+            throw new ReglaDeNegocioException("El peso utilizado no puede superar 1000 kg.");
+        }
+    }
 
     private Rutina obtener(Long id) {
         return rutinaRepository.findByIdConRelaciones(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Rutina", id));
+    }
+
+    private EjercicioRutina buscarEjercicioEnRutina(Rutina rutina, Long ejercicioId) {
+        if (ejercicioId == null) {
+            throw new ReglaDeNegocioException("El ID del ejercicio es obligatorio.");
+        }
+        for (DiaRutina dia : rutina.getDias()) {
+            for (EjercicioRutina ej : dia.getEjercicios()) {
+                if (ejercicioId.equals(ej.getId())) {
+                    return ej;
+                }
+            }
+        }
+        throw new RecursoNoEncontradoException(
+                "El ejercicio con ID " + ejercicioId + " no existe o no pertenece a la rutina #" + rutina.getId());
     }
 
     private void validarEntrenadorActivo(Entrenador entrenador) {
@@ -178,15 +228,6 @@ public class RutinaService {
         }
     }
 
-    /**
-     * Copia los datos escalares del request a la entidad y sincroniza la colección de
-     * días y ejercicios sin provocar violaciones de clave única (SQLState 23505).
-     *
-     * Cuando la rutina ya posee un DiaRutina con el mismo DiaSemana, reutiliza y actualiza
-     * esa instancia en lugar de eliminarla e insertar otra con la misma clave única
-     * (rutina_id, dia_semana). Los días que ya no están en la petición se eliminan por
-     * orphanRemoval.
-     */
     private void aplicarDatos(Rutina rutina, RutinaRequestDTO request) {
         rutina.setNombre(request.nombre().trim());
         rutina.setObjetivo(request.objetivo().trim());
@@ -204,7 +245,6 @@ public class RutinaService {
             return;
         }
 
-        // Indexar los días actuales por DiaSemana para reutilizar los que permanecen
         Map<DiaSemana, DiaRutina> existentesPorDia = new EnumMap<>(DiaSemana.class);
         for (DiaRutina existente : rutina.getDias()) {
             if (existente.getDiaSemana() != null) {
@@ -212,13 +252,11 @@ public class RutinaService {
             }
         }
 
-        // Determinar qué días siguen presentes en la solicitud
         Set<DiaSemana> diasSolicitados = EnumSet.noneOf(DiaSemana.class);
         for (DiaRutinaDTO dto : request.dias()) {
             diasSolicitados.add(dto.diaSemana());
         }
 
-        // Eliminar únicamente los días que ya no vienen en la solicitud
         rutina.getDias().removeIf(d -> !diasSolicitados.contains(d.getDiaSemana()));
 
         int ordenDia = 1;
@@ -235,11 +273,11 @@ public class RutinaService {
             dia.setOrden(diaDto.orden() != null ? diaDto.orden() : ordenDia);
             ordenDia++;
 
-            // Reconstruir los ejercicios del día (no tienen restricción UNIQUE que colisione)
             dia.getEjercicios().clear();
             int ordenEj = 1;
             if (diaDto.ejercicios() != null) {
                 for (EjercicioRutinaDTO ejDto : diaDto.ejercicios()) {
+                    validarRangoPeso(ejDto.pesoKg());
                     EjercicioRutina ej = new EjercicioRutina();
                     ej.setNombre(ejDto.nombre().trim());
                     ej.setSeries(ejDto.series());
@@ -247,6 +285,8 @@ public class RutinaService {
                     ej.setDescansoSeg(ejDto.descansoSeg());
                     ej.setNotas(ejDto.notas() == null || ejDto.notas().isBlank() ? null : ejDto.notas().trim());
                     ej.setOrden(ejDto.orden() != null ? ejDto.orden() : ordenEj);
+                    ej.setCompletado(Boolean.TRUE.equals(ejDto.completado()));
+                    ej.setPesoKg(ejDto.pesoKg());
                     ordenEj++;
                     dia.agregarEjercicio(ej);
                 }
@@ -257,7 +297,6 @@ public class RutinaService {
             }
         }
 
-        // Mantener la lista en memoria ordenada por 'orden'
         rutina.getDias().sort((a, b) -> Integer.compare(
                 a.getOrden() != null ? a.getOrden() : 0,
                 b.getOrden() != null ? b.getOrden() : 0));
@@ -266,17 +305,40 @@ public class RutinaService {
     RutinaResponseDTO toDTO(Rutina r, boolean conDetalle) {
         List<DiaRutinaDTO> dias = new ArrayList<>();
         int totalEjercicios = 0;
+        int ejerciciosCompletados = 0;
+
         for (DiaRutina dia : r.getDias()) {
-            List<EjercicioRutinaDTO> ejercicios = dia.getEjercicios().stream()
-                    .map(e -> new EjercicioRutinaDTO(e.getId(), e.getNombre(), e.getSeries(),
-                            e.getRepeticiones(), e.getDescansoSeg(), e.getNotas(), e.getOrden()))
-                    .toList();
-            totalEjercicios += ejercicios.size();
+            List<EjercicioRutinaDTO> ejercicios = new ArrayList<>();
+            for (EjercicioRutina e : dia.getEjercicios()) {
+                boolean comp = Boolean.TRUE.equals(e.getCompletado());
+                if (comp) {
+                    ejerciciosCompletados++;
+                }
+                totalEjercicios++;
+                if (conDetalle) {
+                    ejercicios.add(new EjercicioRutinaDTO(
+                            e.getId(),
+                            e.getNombre(),
+                            e.getSeries(),
+                            e.getRepeticiones(),
+                            e.getDescansoSeg(),
+                            e.getNotas(),
+                            e.getOrden(),
+                            comp,
+                            e.getPesoKg()
+                    ));
+                }
+            }
             if (conDetalle) {
                 dias.add(new DiaRutinaDTO(dia.getId(), dia.getDiaSemana(), dia.getNombreDia(),
                         dia.getOrden(), ejercicios));
             }
         }
+
+        int porcentajeProgreso = totalEjercicios > 0
+                ? (int) Math.round((ejerciciosCompletados * 100.0) / totalEjercicios)
+                : 0;
+
         Cliente c = r.getCliente();
         Entrenador e = r.getEntrenador();
         return new RutinaResponseDTO(
@@ -287,6 +349,7 @@ public class RutinaService {
                 r.getDuracionSemanas(), r.getFechaInicio(), r.getFechaFin(),
                 r.getFechaAsignacion(), r.getActiva(),
                 r.getDias().size(), totalEjercicios,
+                ejerciciosCompletados, porcentajeProgreso,
                 dias);
     }
 }

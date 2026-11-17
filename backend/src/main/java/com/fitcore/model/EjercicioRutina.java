@@ -5,7 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** Ejercicio de un día de entrenamiento (series, repeticiones y descanso). */
+/**
+ * Ejercicio de un día de entrenamiento (series, repeticiones, descanso, peso y estado completado).
+ */
 @Entity
 @Table(name = "ejercicios_rutina")
 @Getter
@@ -38,4 +40,20 @@ public class EjercicioRutina {
 
     @Column(nullable = false)
     private Integer orden = 1;
+
+    @Column(nullable = false)
+    private Boolean completado = false;
+
+    @Column(name = "peso_kg")
+    private Double pesoKg;
+
+    @PrePersist
+    public void prePersist() {
+        if (completado == null) {
+            completado = false;
+        }
+        if (orden == null) {
+            orden = 1;
+        }
+    }
 }

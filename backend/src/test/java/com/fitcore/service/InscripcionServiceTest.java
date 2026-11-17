@@ -432,4 +432,33 @@ class InscripcionServiceTest {
         assertEquals(3, resumen.canceladas());
         assertEquals(10, resumen.total());
     }
+
+    @Test
+    @DisplayName("Trazabilidad: activar registra fechaActivacion, cancelar guarda fechaCancelacion y motivo, renovar vincula inscripcionOrigenId")
+    void trazabilidadCompletaMembresias() {
+        Inscripcion ins = inscripcion(15L, plan(2L, 30, true), HOY, HOY.plusDays(30), EstadoInscripcion.PENDIENTE);
+        when(inscripcionRepository.findById(15L)).thenReturn(Optional.of(ins));
+        stubSave();
+
+        // 1. Activar registra fechaActivacion
+        InscripcionResponseDTO activada = service.activar(15L);
+        assertEquals("ACTIVA", activada.estado());
+        assertEquals(HOY.atStartOfDay(), activada.fechaActivacion());
+
+        // 2. Renovar vincula inscripcionOrigenId = 15
+        when(inscripcionRepository.existsRenovacionDeOrigen(15L)).thenReturn(false);
+        when(inscripcionRepository.existsSolapamiento(eq(1L), any(), any(), eq(15L))).thenReturn(false);
+        InscripcionResponseDTO renovada = service.renovar(15L, "Segunda etapa");
+        assertEquals(15L, renovada.inscripcionOrigenId());
+
+        // 3. Intentar renovar por segunda vez la misma inscripción origen -> rechazado
+        when(inscripcionRepository.existsRenovacionDeOrigen(15L)).thenReturn(true);
+        assertThrows(ReglaDeNegocioException.class, () -> service.renovar(15L, null));
+
+        // 4. Cancelar registra fechaCancelacion y motivoCancelacion
+        InscripcionResponseDTO cancelada = service.cancelar(15L, "Viaje laboral");
+        assertEquals("CANCELADA", cancelada.estado());
+        assertEquals(HOY.atStartOfDay(), cancelada.fechaCancelacion());
+        assertEquals("Viaje laboral", cancelada.motivoCancelacion());
+    }
 }

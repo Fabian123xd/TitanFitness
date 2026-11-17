@@ -41,7 +41,7 @@ Abrir la carpeta `frontend` con **Live Server** en Visual Studio Code (por ejemp
 
 ---
 
-## 4. Suite de 65 Pruebas Automatizadas
+## 4. Suite de 71 Pruebas Automatizadas
 
 Ejecutar desde la carpeta `backend`:
 
@@ -53,9 +53,9 @@ Ejecutar desde la carpeta `backend`:
 |---|---|---|---|
 | `BackendApplicationTests` | Contexto Spring | 1 | Arranque completo del contexto Spring Boot |
 | `CalendarioLaboralTest` | Unitaria | 5 | Exclusión de sábados, domingos y feriados configurados |
-| `InscripcionServiceTest` | Unitaria (Mockito) | 26 | Asignación, cálculo de vencimiento, activación sin pagos, renovación conservando historial, prevención de solapamientos y alertas de 7 días hábiles |
+| `InscripcionServiceTest` | Unitaria (Mockito) | 27 | Asignación, cálculo de vencimiento, activación (`fechaActivacion`), cancelación (`fechaCancelacion` y motivo), renovación (`inscripcionOrigenId`), prevención de solapamientos y alertas de 7 días hábiles |
 | `MembresiaServiceTest` | Unitaria (Mockito) | 7 | Unicidad de nombres, edición, `/toggle` y protección de eliminación con historial |
-| `RutinaServiceTest` | Unitaria (Mockito) | 11 | Registro con días y ejercicios, bloqueo de entrenadores inactivos, días sin repetir, actualización y reactivación |
-| `ApiIntegrationTest` | Integración (`@SpringBootTest` + `MockMvc`) | 14 | Seguridad 401/200, BCrypt, flujos completos HTTP de clientes, membresías, inscripciones, renovaciones, entrenadores, rutinas y actualización de mismos días (`LUNES`/`MIERCOLES` → `LUNES`/`VIERNES`) sin error `SQLState: 23505` |
-| `MigracionValidateIntegrationTest` | Integración de Migración SQL | 1 | Crea esquema legacy con datos históricos, ejecuta migración V1 y valida con `spring.jpa.hibernate.ddl-auto=validate` |
-| **Total** | | **65** | **0 Fallos, 0 Errores (`BUILD SUCCESS`)** |
+| `RutinaServiceTest` | Unitaria (Mockito) | 13 | Registro con días y ejercicios, bloqueo de entrenadores inactivos, días sin repetir, actualización, progreso de ejercicios (`porcentajeProgreso`) y validación de peso (`pesoKg`) |
+| `ApiIntegrationTest` | Integración (`@SpringBootTest` + `MockMvc`) | 17 | Seguridad 401/200, BCrypt, cambio de contraseña (`PUT /api/auth/password`), clientes, membresías, inscripciones y trazabilidad, entrenadores, rutinas, progreso (`PATCH`) y ausencia de `SQLState: 23505` |
+| `MigracionValidateIntegrationTest` | Integración de Migración SQL | 1 | Crea esquema legacy con datos históricos, ejecuta migraciones V1 + V2 y valida con `spring.jpa.hibernate.ddl-auto=validate` |
+| **Total** | | **71** | **0 Fallos, 0 Errores (`BUILD SUCCESS`)** |

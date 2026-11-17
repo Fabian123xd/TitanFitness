@@ -10,17 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
- * Controlador REST para la gestión de inscripciones de membresías.
- *
- * Base URL: /api/inscripciones
- *
- * FLUJO DE ESTADOS:
- *   POST /          → crea inscripción (PENDIENTE)
- *   PUT /{id}/activar  → admin activa (ACTIVA)   ← Reemplaza flujo de pago
- *   PUT /{id}/cancelar → cancela (CANCELADA)
- *   POST /{id}/renovar → crea nueva inscripción (nueva PENDIENTE)
+ * Controlador REST para la gestión de inscripciones de membresías, activaciones,
+ * cancelaciones y renovaciones con trazabilidad completa.
  */
 @RestController
 @RequestMapping("/api/inscripciones")
@@ -34,13 +28,11 @@ public class InscripcionController {
 
     // ── Consultas ─────────────────────────────────────────────────────────────
 
-    /** Lista todas las inscripciones. */
     @GetMapping
     public List<InscripcionResponseDTO> listarTodas() {
         return inscripcionService.listarTodas();
     }
 
-    /** Busca inscripción por ID. */
     @GetMapping("/{id}")
     public ResponseEntity<InscripcionResponseDTO> buscarPorId(@PathVariable Long id) {
         return inscripcionService.buscarPorId(id)
@@ -48,34 +40,26 @@ public class InscripcionController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /** Historial de inscripciones de un cliente específico. */
     @GetMapping("/cliente/{clienteId}")
     public List<InscripcionResponseDTO> listarPorCliente(@PathVariable Long clienteId) {
         return inscripcionService.listarPorCliente(clienteId);
     }
 
-    /** Solo inscripciones vigentes (ACTIVA y fechaFin >= hoy). */
     @GetMapping("/activas")
     public List<InscripcionResponseDTO> listarActivas() {
         return inscripcionService.listarActivas();
     }
 
-    /** Inscripciones vencidas (ACTIVA con fechaFin < hoy, o estado VENCIDA). */
     @GetMapping("/vencidas")
     public List<InscripcionResponseDTO> listarVencidas() {
         return inscripcionService.listarVencidas();
     }
 
-    /**
-     * Inscripciones ACTIVAS que vencen en los próximos 7 días hábiles.
-     * Usado para las alertas del dashboard.
-     */
     @GetMapping("/proximas-vencer")
     public List<InscripcionResponseDTO> listarProximasAVencer() {
         return inscripcionService.listarProximasAVencer();
     }
 
-    /** Contadores consolidados para el dashboard. */
     @GetMapping("/resumen")
     public ResumenInscripcionesDTO obtenerResumen() {
         return inscripcionService.obtenerResumen();
@@ -83,10 +67,6 @@ public class InscripcionController {
 
     // ── Operaciones de escritura ──────────────────────────────────────────────
 
-    /**
-     * Crea una nueva inscripción (en estado PENDIENTE).
-     * Requiere clienteId y membresiaId. La fechaFin se calcula automáticamente.
-     */
     @PostMapping
     public ResponseEntity<InscripcionResponseDTO> registrar(
             @Valid @RequestBody InscripcionRequestDTO request) {
@@ -94,27 +74,26 @@ public class InscripcionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(inscripcion);
     }
 
-    /**
-     * Activa una inscripción en estado PENDIENTE.
-     *
-     * IMPORTANTE: Este endpoint reemplaza la dependencia del módulo de pagos.
-     * El administrador activa la inscripción directamente desde la interfaz.
-     */
     @PutMapping("/{id}/activar")
     public ResponseEntity<InscripcionResponseDTO> activar(@PathVariable Long id) {
         return ResponseEntity.ok(inscripcionService.activar(id));
     }
 
-    /** Cancela una inscripción PENDIENTE o ACTIVA. */
+    /**
+     * Cancela una inscripción PENDIENTE o ACTIVA, permitiendo especificar el motivo
+     * por query param (?motivo=...) o cuerpo JSON ({"motivo": "..."}).
+     */
     @PutMapping("/{id}/cancelar")
-    public ResponseEntity<InscripcionResponseDTO> cancelar(@PathVariable Long id) {
-        return ResponseEntity.ok(inscripcionService.cancelar(id));
+    public ResponseEntity<InscripcionResponseDTO> cancelar(
+            @PathVariable Long id,
+            @RequestParam(required = false) String motivo,
+            @RequestBody(required = false) Map<String, String> body) {
+        String motivoEfectivo = (motivo != null && !motivo.isBlank())
+                ? motivo
+                : (body != null ? body.get("motivo") : null);
+        return ResponseEntity.ok(inscripcionService.cancelar(id, motivoEfectivo));
     }
 
-    /**
-     * Renueva una inscripción creando una nueva a continuación.
-     * La inscripción original se conserva (historial intacto).
-     */
     @PostMapping("/{id}/renovar")
     public ResponseEntity<InscripcionResponseDTO> renovar(
             @PathVariable Long id,
@@ -123,7 +102,6 @@ public class InscripcionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(nueva);
     }
 
-    /** Elimina una inscripción por ID. */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         inscripcionService.eliminar(id);

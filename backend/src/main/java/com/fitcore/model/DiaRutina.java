@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +48,7 @@ public class DiaRutina {
 
     @OneToMany(mappedBy = "dia", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("orden ASC")
+    @BatchSize(size = 50)
     private List<EjercicioRutina> ejercicios = new ArrayList<>();
 
     public void agregarEjercicio(EjercicioRutina ejercicio) {

@@ -118,6 +118,9 @@ class MigracionValidateIntegrationTest {
                 INSERT INTO inscripciones (cliente_id, membresia_id, fecha_inicio, fecha_fin, estado)
                 VALUES (1, 1, DATE '2025-02-01', DATE '2025-03-03', 'ACTIVA');
 
+                INSERT INTO inscripciones (cliente_id, membresia_id, fecha_inicio, fecha_fin, estado)
+                VALUES (1, 1, DATE '2025-01-01', DATE '2025-01-31', 'CANCELADA');
+
                 INSERT INTO entrenadores (nombres, apellidos, especialidad, telefono, correo, activo)
                 VALUES ('Marco', 'Trainer', 'Fuerza', '988111222', 'marco@test.com', TRUE);
 
@@ -168,6 +171,12 @@ class MigracionValidateIntegrationTest {
                     orden INTEGER NOT NULL DEFAULT 1
                 );
 
+                INSERT INTO dias_rutina (rutina_id, dia_semana, nombre_dia, orden)
+                VALUES (1, 'LUNES', 'Fuerza Base', 1);
+
+                INSERT INTO ejercicios_rutina (dia_id, nombre, series, repeticiones, descanso_seg, orden)
+                VALUES (1, 'Sentadilla Libre', 4, 10, 90, 1);
+
                 CREATE INDEX IF NOT EXISTS idx_dias_rutina_rutina_id ON dias_rutina (rutina_id);
                 CREATE INDEX IF NOT EXISTS idx_ejercicios_rutina_dia_id ON ejercicios_rutina (dia_id);
                 CREATE INDEX IF NOT EXISTS idx_inscripciones_cliente_id ON inscripciones (cliente_id);
@@ -175,6 +184,22 @@ class MigracionValidateIntegrationTest {
                 CREATE INDEX IF NOT EXISTS idx_inscripciones_fecha_fin ON inscripciones (fecha_fin);
                 CREATE INDEX IF NOT EXISTS idx_rutinas_cliente_id ON rutinas (cliente_id);
                 CREATE INDEX IF NOT EXISTS idx_rutinas_entrenador_id ON rutinas (entrenador_id);
+
+                -- 4. Ejecutar migración incremental V2 (progreso de rutinas y trazabilidad de inscripciones)
+                ALTER TABLE ejercicios_rutina ADD COLUMN IF NOT EXISTS completado BOOLEAN;
+                ALTER TABLE ejercicios_rutina ADD COLUMN IF NOT EXISTS peso_kg DOUBLE PRECISION;
+                UPDATE ejercicios_rutina SET completado = FALSE WHERE completado IS NULL;
+                ALTER TABLE ejercicios_rutina ALTER COLUMN completado SET DEFAULT FALSE;
+                ALTER TABLE ejercicios_rutina ALTER COLUMN completado SET NOT NULL;
+
+                ALTER TABLE inscripciones ADD COLUMN IF NOT EXISTS inscripcion_origen_id BIGINT REFERENCES inscripciones(id) ON DELETE SET NULL;
+                ALTER TABLE inscripciones ADD COLUMN IF NOT EXISTS fecha_activacion TIMESTAMP;
+                ALTER TABLE inscripciones ADD COLUMN IF NOT EXISTS fecha_cancelacion TIMESTAMP;
+                ALTER TABLE inscripciones ADD COLUMN IF NOT EXISTS motivo_cancelacion VARCHAR(300);
+                UPDATE inscripciones
+                SET motivo_cancelacion = 'Cancelación histórica previa a V2'
+                WHERE estado = 'CANCELADA' AND (motivo_cancelacion IS NULL OR TRIM(motivo_cancelacion) = '');
+                CREATE INDEX IF NOT EXISTS idx_inscripciones_origen_id ON inscripciones (inscripcion_origen_id);
                 """);
         }
 
@@ -196,11 +221,21 @@ class MigracionValidateIntegrationTest {
         assertEquals(LocalDate.of(2025, 2, 1), ins.getFechaRegistro());
         assertEquals(EstadoInscripcion.VENCIDA, ins.getEstado());
 
-        // 2. Verificar que la rutina histórica recibió objetivo y fecha_inicio desde fecha_asignacion
+        // 2. Verificar que la inscripción histórica CANCELADA recibió el backfill de V2 en motivo_cancelacion
+        var insCancelada = inscripcionRepository.findById(2L).orElseThrow();
+        assertEquals(EstadoInscripcion.CANCELADA, insCancelada.getEstado());
+        assertEquals("Cancelación histórica previa a V2", insCancelada.getMotivoCancelacion());
+
+        // 3. Verificar que la rutina histórica recibió objetivo y fecha_inicio desde fecha_asignacion
         var rut = rutinaRepository.findById(1L).orElseThrow();
         assertEquals("Acondicionamiento general", rut.getObjetivo());
         assertEquals(LocalDate.of(2025, 2, 5), rut.getFechaInicio());
         assertTrue(rut.getActiva());
+
+        // 4. Verificar que el ejercicio previo a V2 recibió completado = FALSE por backfill
+        Boolean completado = jdbcTemplate.queryForObject(
+                "SELECT completado FROM ejercicios_rutina WHERE id = 1", Boolean.class);
+        assertEquals(Boolean.FALSE, completado);
 
         // 3. Verificar que AdminInitializer creó el usuario admin con BCrypt
         var admin = usuarioRepository.findByUsername("admin").orElseThrow();

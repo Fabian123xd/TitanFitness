@@ -207,21 +207,6 @@ if (buscarCliente) {
     });
 }
 
-function badgeEstadoInscripcion(estado) {
-    switch (estado) {
-        case "ACTIVA":
-            return '<span class="badge bg-success">ACTIVA</span>';
-        case "PENDIENTE":
-            return '<span class="badge bg-primary">PENDIENTE</span>';
-        case "VENCIDA":
-            return '<span class="badge bg-danger">VENCIDA</span>';
-        case "CANCELADA":
-            return '<span class="badge bg-secondary">CANCELADA</span>';
-        default:
-            return `<span class="badge bg-secondary">${estado || "-"}</span>`;
-    }
-}
-
 async function verHistorial(id) {
     const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("modalHistorial"));
 
@@ -257,7 +242,18 @@ async function verHistorial(id) {
         if (inscripciones.length === 0) {
             contenedorIns.innerHTML = '<div class="alert alert-light border mb-0">Este cliente aún no registra inscripciones de membresía.</div>';
         } else {
-            contenedorIns.innerHTML = "";
+            // Línea de tiempo cronológica (de la primera inscripción a las renovaciones posteriores)
+            const cronologicas = [...inscripciones].sort((a, b) => Number(a.id) - Number(b.id));
+            const resumenCadena = cronologicas.map(i =>
+                i.inscripcionOrigenId ? `Renovada en #${i.id} (desde #${i.inscripcionOrigenId})` : `Inscripción inicial #${i.id}`
+            ).join(" → ");
+
+            contenedorIns.innerHTML = `
+                <div class="p-2 px-3 mb-2 rounded-3 bg-primary bg-opacity-10 border border-primary border-opacity-25 small text-primary fw-semibold">
+                    <i class="fa-solid fa-timeline me-1"></i>Cadena de trazabilidad: ${resumenCadena}
+                </div>
+            `;
+
             inscripciones.forEach(ins => {
                 const div = document.createElement("div");
                 div.className = "border rounded-3 p-3 mb-2 bg-white shadow-xs";
@@ -265,14 +261,24 @@ async function verHistorial(id) {
                 const alerta = ins.proximaAVencer
                     ? `<span class="badge bg-warning text-dark ms-1">Vence en ${ins.diasHabilesRestantes} día(s) hábiles</span>`
                     : "";
+                const origenBadge = ins.inscripcionOrigenId
+                    ? `<span class="badge bg-primary ms-1">Renovada desde #${ins.inscripcionOrigenId}</span>`
+                    : `<span class="badge bg-secondary ms-1">Inicial</span>`;
+                const trazabilidad = [
+                    ins.fechaActivacion ? `Activada: ${formatearFechaHoraLegible(ins.fechaActivacion)}` : null,
+                    ins.fechaCancelacion ? `Cancelada: ${formatearFechaHoraLegible(ins.fechaCancelacion)}` : null,
+                    ins.motivoCancelacion ? `Motivo: ${ins.motivoCancelacion}` : null
+                ].filter(Boolean).join(" · ");
+
                 div.innerHTML = `
                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <strong>#${ins.id} · ${plan}</strong>
+                        <div><strong>#${ins.id} · ${plan}</strong> ${origenBadge}</div>
                         <div>${badgeEstadoInscripcion(ins.estado)} ${alerta}</div>
                     </div>
                     <div class="small text-muted mt-1">
                         Inicio: <strong>${ins.fechaInicio}</strong> · Vencimiento: <strong>${ins.fechaFin}</strong>
                         ${ins.observaciones ? `<div class="mt-1"><em>Nota: ${ins.observaciones}</em></div>` : ""}
+                        ${trazabilidad ? `<div class="mt-1 text-primary fw-medium">${trazabilidad}</div>` : ""}
                     </div>
                 `;
                 contenedorIns.appendChild(div);
@@ -303,7 +309,8 @@ async function verHistorial(id) {
                     <div class="small text-muted mt-1">
                         Entrenador: <strong>${rut.nombreEntrenador || "-"}</strong> ·
                         Asignada: ${rut.fechaAsignacion || "-"} ·
-                        ${rut.totalDias ?? 0} día(s) / ${rut.totalEjercicios ?? 0} ejercicio(s)
+                        ${rut.totalDias ?? 0} día(s) ·
+                        <strong>${rut.ejerciciosCompletados ?? 0}/${rut.totalEjercicios ?? 0} ej. (${rut.porcentajeProgreso ?? 0}%)</strong>
                     </div>
                 `;
                 contenedorRut.appendChild(div);

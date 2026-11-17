@@ -13,8 +13,8 @@ import java.util.Map;
 /**
  * Servicio que consolida los indicadores operativos para el Dashboard.
  *
- * Respeta la arquitectura por capas (Controller -> Service -> Repository),
- * evitando que ReporteController acceda directamente a los repositorios JPA.
+ * Utiliza consultas COUNT directas en base de datos evitando cargar colecciones
+ * completas en memoria.
  */
 @Service
 @Transactional(readOnly = true)
@@ -43,14 +43,14 @@ public class ReporteService {
         Map<String, Long> resumen = new LinkedHashMap<>();
         resumen.put("totalClientes", clienteRepository.count());
         resumen.put("totalPlanes", membresiaRepository.count());
-        resumen.put("planesActivos", (long) membresiaRepository.findByActivoTrue().size());
+        resumen.put("planesActivos", membresiaRepository.countByActivoTrue());
         resumen.put("inscripcionesActivas", inscripciones.activas());
         resumen.put("inscripcionesPendientes", inscripciones.pendientes());
         resumen.put("inscripcionesProximasAVencer", inscripciones.proximasAVencer());
         resumen.put("inscripcionesVencidas", inscripciones.vencidas());
         resumen.put("inscripcionesCanceladas", inscripciones.canceladas());
         resumen.put("totalEntrenadores", entrenadorRepository.count());
-        resumen.put("entrenadoresActivos", (long) entrenadorRepository.findByActivoTrue().size());
+        resumen.put("entrenadoresActivos", entrenadorRepository.countByActivoTrue());
         resumen.put("totalRutinas", rutinaRepository.count());
         resumen.put("rutinasActivas", rutinaRepository.countByActivaTrue());
         resumen.put("rutinasInactivas", rutinaRepository.countByActivaFalse());

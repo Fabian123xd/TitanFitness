@@ -13,4 +13,7 @@ public interface MembresiaRepository extends JpaRepository<Membresia, Long> {
 
     /** Lista solo los planes activos, útil para el selector de inscripciones. */
     List<Membresia> findByActivoTrue();
+
+    /** Conteo directo en BD de planes activos para el Dashboard. */
+    long countByActivoTrue();
 }

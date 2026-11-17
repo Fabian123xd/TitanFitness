@@ -12,18 +12,21 @@
 ### B. Inscripciones, Renovaciones y Alertas (`InscripcionService` & `CalendarioLaboral`)
 - **IN-01 (Prevención de duplicados y solapamientos)**: Un cliente no puede tener dos inscripciones en estado `PENDIENTE` o `ACTIVA` cuyos rangos `[fechaInicio, fechaFin]` se superpongan (`InscripcionRepository.existsSolapamiento`).
 - **IN-02 / IN-03**: `fechaInicio` por defecto es hoy (no se permiten fechas en el pasado) y `fechaFin` se calcula automáticamente como `fechaInicio + membresia.duracionDias`.
-- **IN-04 (Activación desacoplada de pagos)**: El administrador activa directamente una inscripción `PENDIENTE` mediante `PUT /api/inscripciones/{id}/activar`.
-- **IN-05 / IN-06 / IN-07 (Renovación con historial intacto)**: Solo se renueva desde una inscripción `ACTIVA` o `VENCIDA` cuyo plan siga activo. La renovación crea un **nuevo registro** `PENDIENTE` que inicia en `fechaFin + 1 día` (o `hoy` si la anterior ya estaba vencida), conservando intacta la inscripción base.
+- **IN-04 (Activación directa con trazabilidad)**: El administrador activa directamente una inscripción `PENDIENTE` mediante `PUT /api/inscripciones/{id}/activar`, registrando la fecha y hora exacta en `fechaActivacion`.
+- **IN-05 / IN-06 / IN-07 (Renovación con historial intacto y vínculo de origen)**: Solo se renueva desde una inscripción `ACTIVA` o `VENCIDA` cuyo plan siga activo y que aún no haya sido renovada (`existsRenovacionDeOrigen`). La renovación crea un **nuevo registro** `PENDIENTE` con `inscripcionOrigenId = idBase` que inicia en `fechaFin + 1 día` (o `hoy` si la anterior ya estaba vencida), conservando intacta la inscripción base.
 - **IN-08**: Toda inscripción `ACTIVA` con `fechaFin < hoy` se evalúa y sincroniza automáticamente como `VENCIDA` (`VencimientoScheduler`).
-- **IN-09 / IN-10 (Alertas de 7 días hábiles)**: Una inscripción `ACTIVA` entra en alerta (`proximaAVencer = true`) cuando restan **7 o menos días hábiles** entre `hoy` (exclusivo) y `fechaFin` (inclusivo), excluyendo sábados, domingos y los feriados configurados en `fitcore.feriados`.
+- **IN-09 (Alertas de 7 días hábiles)**: Una inscripción `ACTIVA` entra en alerta (`proximaAVencer = true`) cuando restan **7 o menos días hábiles** entre `hoy` (exclusivo) y `fechaFin` (inclusivo), excluyendo sábados, domingos y los feriados configurados en `fitcore.feriados`.
+- **IN-10 (Trazabilidad de cancelación)**: Cancelar una inscripción registra `fechaCancelacion` y `motivoCancelacion`.
+- **IN-11 (Control de concurrencia)**: Al registrar o renovar una inscripción se adquiere bloqueo pesimista (`LockModeType.PESSIMISTIC_WRITE`) sobre el cliente (`ClienteRepository.findByIdForUpdate`) para evitar condiciones de carrera.
 
-### C. Rutinas, Días y Ejercicios (`RutinaService`)
+### C. Rutinas, Días, Ejercicios y Progreso (`RutinaService`)
 - **RU-01 / RU-02**: No se puede asignar ni reactivar una rutina si el entrenador está inactivo (`activo = false`).
 - **RU-03**: Desactivar una rutina cambia `activa = false` conservando la rutina y sus ejercicios en el historial del cliente.
 - **RU-04**: Si se indica `duracionSemanas`, `fechaFin = fechaInicio.plusWeeks(duracionSemanas)`.
 - **RU-05**: No se permite repetir el mismo `DiaSemana` dentro de una rutina.
-- **RU-06**: Cada ejercicio exige `series >= 1`, `repeticiones >= 1` y `descansoSeg >= 0`.
+- **RU-06**: Cada ejercicio exige `series >= 1`, `repeticiones >= 1`, `descansoSeg >= 0` y, si se registra carga externa, `0 <= pesoKg <= 1000`.
 - **RU-07**: Al editar una rutina existente, los días se sincronizan en sitio por `DiaSemana` evitando colisiones con la restricción `uk_dias_rutina_rutina_dia`.
+- **RU-08 (Seguimiento de progreso)**: Cada rutina expone `ejerciciosCompletados` y `porcentajeProgreso = round(completados * 100.0 / total)` (`0%` si no tiene ejercicios).
 
 ---
 
@@ -32,6 +35,7 @@
 | Recurso | Método | Ruta | Código Éxito | Descripción |
 |---|---|---|---|---|
 | **Auth** | `GET` | `/api/auth/me` | `200 OK` | Valida credenciales HTTP Basic y retorna usuario y roles |
+| | `PUT` | `/api/auth/password` | `200 OK` | Actualiza la contraseña del usuario autenticado verificando la actual con BCrypt |
 | **Dashboard** | `GET` | `/api/reportes/resumen` | `200 OK` | Totales de clientes, planes, inscripciones por estado, entrenadores y rutinas |
 | **Clientes** | `GET` | `/api/clientes` | `200 OK` | Lista todos los clientes |
 | | `GET` | `/api/clientes/{id}` | `200 OK` | Obtiene un cliente por ID |
@@ -45,23 +49,23 @@
 | | `PUT` | `/api/membresias/{id}` | `200 OK` | Actualiza las características de un plan |
 | | `PUT` | `/api/membresias/{id}/toggle` | `200 OK` | Activa o desactiva la disponibilidad de un plan |
 | | `DELETE` | `/api/membresias/{id}` | `204 No Content` | Elimina un plan sin inscripciones históricas |
-| **Inscripciones** | `GET` | `/api/inscripciones` | `200 OK` | Lista todas las inscripciones con días restantes y estado efectivo |
+| **Inscripciones** | `GET` | `/api/inscripciones` | `200 OK` | Lista todas las inscripciones con días restantes, estado efectivo y trazabilidad |
 | | `GET` | `/api/inscripciones/activas` | `200 OK` | Lista inscripciones activas vigentes |
 | | `GET` | `/api/inscripciones/vencidas` | `200 OK` | Lista inscripciones vencidas |
 | | `GET` | `/api/inscripciones/proximas-vencer` | `200 OK` | Lista inscripciones activas con ≤ 7 días hábiles restantes |
 | | `GET` | `/api/inscripciones/resumen` | `200 OK` | Contadores por estado de inscripción |
 | | `GET` | `/api/inscripciones/cliente/{clienteId}` | `200 OK` | Historial completo de inscripciones de un cliente |
-| | `POST` | `/api/inscripciones` | `201 Created` | Asigna un plan activo a un cliente (nace en estado `PENDIENTE`) |
-| | `PUT` | `/api/inscripciones/{id}/activar` | `200 OK` | Activa una inscripción `PENDIENTE` → `ACTIVA` |
-| | `PUT` | `/api/inscripciones/{id}/cancelar` | `200 OK` | Cancela una inscripción `PENDIENTE` o `ACTIVA` |
-| | `POST` | `/api/inscripciones/{id}/renovar` | `201 Created` | Crea una nueva inscripción consecutiva conservando la anterior |
+| | `POST` | `/api/inscripciones` | `201 Created` | Asigna un plan activo a un cliente con bloqueo pesimista (nace en `PENDIENTE`) |
+| | `PUT` | `/api/inscripciones/{id}/activar` | `200 OK` | Activa una inscripción `PENDIENTE` → `ACTIVA` registrando `fechaActivacion` |
+| | `PUT` | `/api/inscripciones/{id}/cancelar` | `200 OK` | Cancela una inscripción `PENDIENTE` o `ACTIVA` registrando `fechaCancelacion` y `motivo` |
+| | `POST` | `/api/inscripciones/{id}/renovar` | `201 Created` | Crea una nueva inscripción consecutiva con `inscripcionOrigenId` conservando la anterior |
 | **Entrenadores** | `GET` | `/api/entrenadores` | `200 OK` | Lista todos los entrenadores |
 | | `GET` | `/api/entrenadores/activos` | `200 OK` | Lista solo los entrenadores activos |
 | | `POST` | `/api/entrenadores` | `200 OK` | Registra un nuevo entrenador |
 | | `PUT` | `/api/entrenadores/{id}` | `200 OK` | Actualiza datos y estado de un entrenador |
 | | `PUT` | `/api/entrenadores/{id}/desactivar` | `200 OK` | Desactiva un entrenador |
-| **Rutinas** | `GET` | `/api/rutinas` | `200 OK` | Lista todas las rutinas con conteo de días y ejercicios |
-| | `GET` | `/api/rutinas/{id}` | `200 OK` | Obtiene una rutina con su árbol completo de días y ejercicios |
+| **Rutinas** | `GET` | `/api/rutinas` | `200 OK` | Lista todas las rutinas con conteo de días, ejercicios y porcentaje de progreso |
+| | `GET` | `/api/rutinas/{id}` | `200 OK` | Obtiene una rutina con su árbol completo de días, ejercicios, estado y peso |
 | | `GET` | `/api/rutinas/cliente/{clienteId}` | `200 OK` | Historial de rutinas de un cliente |
 | | `GET` | `/api/rutinas/cliente/{clienteId}/activas` | `200 OK` | Rutinas activas de un cliente |
 | | `GET` | `/api/rutinas/entrenador/{entrenadorId}` | `200 OK` | Rutinas supervisadas por un entrenador |
@@ -69,3 +73,5 @@
 | | `PUT` | `/api/rutinas/{id}` | `200 OK` | Actualiza una rutina sincronizando sus días y ejercicios |
 | | `PUT` | `/api/rutinas/{id}/desactivar` | `200 OK` | Desactiva una rutina conservándola en el historial |
 | | `PUT` | `/api/rutinas/{id}/reactivar` | `200 OK` | Reactiva una rutina si su entrenador está activo |
+| | `PATCH` / `PUT` | `/api/rutinas/{rutinaId}/ejercicios/{ejercicioId}/toggle-completado` | `200 OK` | Alterna el estado `completado` de un ejercicio y recalcula `porcentajeProgreso` |
+| | `PATCH` / `PUT` | `/api/rutinas/{rutinaId}/ejercicios/{ejercicioId}/peso` | `200 OK` | Actualiza el peso utilizado (`0` a `1000` kg) en un ejercicio de la rutina |

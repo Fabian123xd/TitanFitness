@@ -171,16 +171,31 @@ function renderizarTabla() {
         `;
 
         const iniciales = obtenerIniciales(ins.nombreCliente || "");
+        const etiquetaOrigen = ins.inscripcionOrigenId
+            ? `<div class="mt-1"><span class="badge bg-primary"><i class="fa-solid fa-link me-1"></i>Renovada desde #${ins.inscripcionOrigenId}</span></div>`
+            : `<div class="mt-1"><span class="badge bg-secondary">Inscripción inicial</span></div>`;
+
+        const infoAuditoria = [
+            ins.fechaActivacion ? `Activada: ${formatearFechaHoraLegible(ins.fechaActivacion)}` : null,
+            ins.fechaCancelacion ? `Cancelada: ${formatearFechaHoraLegible(ins.fechaCancelacion)}` : null,
+            ins.motivoCancelacion ? `Motivo: ${ins.motivoCancelacion}` : null
+        ].filter(Boolean).join(" · ");
 
         tr.innerHTML = `
             <td class="text-muted fw-semibold">#${ins.id}</td>
             <td>
                 <div class="d-flex align-items-center gap-2">
                     <span class="avatar-chip">${iniciales}</span>
-                    <span class="fw-semibold" style="color: var(--navy-900);">${ins.nombreCliente || "-"}</span>
+                    <div>
+                        <span class="fw-semibold" style="color: var(--navy-900);">${ins.nombreCliente || "-"}</span>
+                        ${etiquetaOrigen}
+                    </div>
                 </div>
             </td>
-            <td><span class="fw-semibold">${ins.nombreMembresia || "-"}</span></td>
+            <td>
+                <span class="fw-semibold">${ins.nombreMembresia || "-"}</span>
+                ${infoAuditoria ? `<div class="small text-muted mt-1">${infoAuditoria}</div>` : ""}
+            </td>
             <td>
                 <div class="small">Inicio: <strong>${ins.fechaInicio}</strong></div>
                 <div class="small text-muted">Fin: <strong>${ins.fechaFin}</strong></div>
@@ -277,16 +292,21 @@ async function activarInscripcion(id) {
 }
 
 async function cancelarInscripcion(id) {
-    if (!confirm(`¿Desea cancelar la inscripción #${id}? El registro permanecerá en el historial.`)) return;
+    const motivo = prompt(
+        `Cancelar inscripción #${id}.\nEl registro permanecerá en el historial del cliente.\n\nIngrese el motivo de cancelación:`,
+        "Solicitud del socio"
+    );
+    if (motivo === null) return;
 
     try {
-        const res = await fetch(`${API_INSCRIPCIONES}/${id}/cancelar`, { method: "PUT" });
+        const params = motivo.trim() ? `?motivo=${encodeURIComponent(motivo.trim())}` : "";
+        const res = await fetch(`${API_INSCRIPCIONES}/${id}/cancelar${params}`, { method: "PUT" });
         if (!res.ok) {
             const msg = await extraerMensajeError(res, "No se pudo cancelar la inscripción");
             throw new Error(msg);
         }
         await cargarInscripciones();
-        mostrarMensajeInscripcion(`Inscripción #${id} cancelada.`, "info");
+        mostrarMensajeInscripcion(`Inscripción #${id} cancelada con trazabilidad registrada.`, "info");
     } catch (error) {
         console.error(error);
         mostrarMensajeInscripcion(error.message, "danger");
@@ -341,13 +361,26 @@ async function verHistorialCliente(clienteId, nombreCliente) {
         lista.forEach(ins => {
             const item = document.createElement("div");
             item.className = "border rounded-3 p-3 mb-2 d-flex justify-content-between align-items-center flex-wrap gap-2 bg-white shadow-xs";
+            const origenBadge = ins.inscripcionOrigenId
+                ? `<span class="badge bg-primary ms-1"><i class="fa-solid fa-link me-1"></i>Renovada desde #${ins.inscripcionOrigenId}</span>`
+                : `<span class="badge bg-secondary ms-1">Origen inicial</span>`;
+            const detallesTrazabilidad = [
+                ins.fechaActivacion ? `Activada: ${formatearFechaHoraLegible(ins.fechaActivacion)}` : null,
+                ins.fechaCancelacion ? `Cancelada: ${formatearFechaHoraLegible(ins.fechaCancelacion)}` : null,
+                ins.motivoCancelacion ? `Motivo: ${ins.motivoCancelacion}` : null
+            ].filter(Boolean).join(" · ");
+
             item.innerHTML = `
                 <div>
-                    <strong>Inscripción #${ins.id} · ${ins.nombreMembresia}</strong>
-                    <div class="small text-muted">
+                    <div>
+                        <strong>Inscripción #${ins.id} · ${ins.nombreMembresia}</strong>
+                        ${origenBadge}
+                    </div>
+                    <div class="small text-muted mt-1">
                         Período: <strong>${ins.fechaInicio}</strong> al <strong>${ins.fechaFin}</strong>
                         ${ins.observaciones ? ` · <em>${ins.observaciones}</em>` : ""}
                     </div>
+                    ${detallesTrazabilidad ? `<div class="small text-primary mt-1">${detallesTrazabilidad}</div>` : ""}
                 </div>
                 <div>${renderizarEstado(ins)}</div>
             `;

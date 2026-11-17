@@ -1,12 +1,17 @@
 package com.fitcore.dto;
 
+import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
-/** Ejercicio de un día de rutina (entrada y salida). */
+/**
+ * Ejercicio de un día de rutina (entrada y salida), incluyendo seguimiento de progreso
+ * (completado y peso en kg).
+ */
 public record EjercicioRutinaDTO(
         Long id,
 
@@ -31,5 +36,24 @@ public record EjercicioRutinaDTO(
         @Size(max = 300, message = "Las notas no pueden superar 300 caracteres")
         String notas,
 
-        Integer orden
-) {}
+        Integer orden,
+
+        Boolean completado,
+
+        @PositiveOrZero(message = "El peso utilizado no puede ser negativo")
+        @DecimalMax(value = "1000.0", message = "El peso utilizado no puede superar 1000 kg")
+        Double pesoKg
+) {
+    /** Constructor de compatibilidad sin campos de progreso (asigna completado = false, pesoKg = null). */
+    public EjercicioRutinaDTO(
+            Long id,
+            String nombre,
+            Integer series,
+            Integer repeticiones,
+            Integer descansoSeg,
+            String notas,
+            Integer orden
+    ) {
+        this(id, nombre, series, repeticiones, descansoSeg, notas, orden, false, null);
+    }
+}
