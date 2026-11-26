@@ -3,224 +3,637 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Titan Fitness Club | Acceso Administrativo</title>
+  <title>Titan Fitness Club | Acceso al Sistema</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    @keyframes loginFadeIn {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
+    :root {
+      --navy-950: #050811;
+      --navy-900: #0b1120;
+      --navy-800: #0f172a;
+      --cobalt-600: #2563eb;
+      --cobalt-700: #1d4ed8;
+      --sky-400: #38bdf8;
+      --emerald-400: #34d399;
     }
-    body {
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
       min-height: 100vh;
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background:
-        radial-gradient(circle at 18% 20%, rgba(56, 189, 248, 0.18) 0%, transparent 40%),
-        radial-gradient(circle at 85% 80%, rgba(37, 99, 235, 0.28) 0%, transparent 45%),
-        linear-gradient(135deg, #070b14 0%, #0b1120 55%, #0f172a 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
+      background-color: var(--navy-950);
+      color: #0f172a;
+      overflow-x: hidden;
     }
+
+    /* LAYOUT PANTALLA COMPLETA */
     .login-shell {
-      width: 100%;
-      max-width: 930px;
-      border-radius: 24px;
-      overflow: hidden;
-      background: #ffffff;
-      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      width: 100vw;
+      min-height: 100vh;
       display: grid;
-      grid-template-columns: 1.08fr 1fr;
-      animation: loginFadeIn 0.35s ease-out;
+      grid-template-columns: 1.35fr 1fr;
+      background: #ffffff;
     }
+
+    /* PANEL IZQUIERDO: ESCAPARATE VISUAL DE GIMNASIO */
     .login-showcase {
-      background: linear-gradient(160deg, #0b1120 0%, #1e3a8a 65%, #0284c7 100%);
+      position: relative;
+      min-height: 100vh;
+      padding: 48px 56px;
       color: #ffffff;
-      padding: 44px 40px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      position: relative;
       overflow: hidden;
+      background:
+        linear-gradient(135deg, rgba(5, 8, 17, 0.92) 0%, rgba(11, 17, 32, 0.85) 48%, rgba(29, 78, 216, 0.78) 100%),
+        url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
     }
+
+    .login-showcase::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 14% 22%, rgba(56, 189, 248, 0.24) 0%, transparent 42%),
+        radial-gradient(circle at 86% 82%, rgba(37, 99, 235, 0.35) 0%, transparent 48%),
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 44px 44px, 44px 44px;
+      pointer-events: none;
+    }
+
+    .showcase-header,
+    .showcase-body,
+    .showcase-footer {
+      position: relative;
+      z-index: 2;
+    }
+
+    .showcase-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .brand-identity {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-emblem {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--cobalt-600) 0%, var(--sky-400) 100%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 21px;
+      color: #ffffff;
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.5);
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: #ffffff;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--sky-400);
+      display: block;
+      margin-top: 3px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.68);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      backdrop-filter: blur(8px);
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #e0f2fe;
+      letter-spacing: 0.04em;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald-400);
+      box-shadow: 0 0 10px var(--emerald-400);
+    }
+
+    .showcase-body {
+      max-width: 680px;
+      margin: auto 0;
+      padding: 32px 0;
+    }
+
     .login-brand-badge {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      padding: 8px 14px;
+      gap: 9px;
+      background: rgba(37, 99, 235, 0.24);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      padding: 7px 15px;
       border-radius: 999px;
       font-size: 11.5px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      width: fit-content;
-    }
-    .login-showcase h2 {
-      font-size: 28px;
       font-weight: 800;
-      line-height: 1.2;
-      letter-spacing: -0.02em;
-      margin-top: 22px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #bae6fd;
+      margin-bottom: 20px;
     }
-    .login-feature-list {
-      list-style: none;
-      padding: 0;
-      margin: 24px 0 0;
+
+    .showcase-headline {
+      font-size: clamp(32px, 3.3vw, 46px);
+      font-weight: 800;
+      line-height: 1.12;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+      margin-bottom: 18px;
+    }
+
+    .showcase-headline span {
+      background: linear-gradient(90deg, #38bdf8 0%, #93c5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .showcase-description {
+      font-size: 15.5px;
+      line-height: 1.65;
+      color: rgba(226, 232, 240, 0.88);
+      margin-bottom: 32px;
+      max-width: 610px;
+    }
+
+    /* TARJETAS DE MÓDULOS DEPORTIVOS */
+    .gym-modules-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .gym-module-card {
+      background: rgba(15, 23, 42, 0.62);
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 18px 20px;
       display: flex;
-      flex-direction: column;
-      gap: 13px;
-      font-size: 13.5px;
-      color: #e0f2fe;
+      align-items: flex-start;
+      gap: 14px;
+      transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease;
     }
-    .login-feature-list li {
-      display: flex;
-      align-items: center;
-      gap: 11px;
+
+    .gym-module-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(56, 189, 248, 0.45);
+      background: rgba(15, 23, 42, 0.78);
     }
-    .login-feature-list i {
-      width: 26px;
-      height: 26px;
-      border-radius: 8px;
-      background: rgba(56, 189, 248, 0.22);
-      color: #38bdf8;
+
+    .gym-module-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.35) 0%, rgba(56, 189, 248, 0.25) 100%);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: var(--sky-400);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
+      font-size: 17px;
       flex-shrink: 0;
     }
+
+    .gym-module-card h3 {
+      font-size: 14px;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0 0 4px;
+    }
+
+    .gym-module-card p {
+      font-size: 12.5px;
+      line-height: 1.45;
+      color: #cbd5e1;
+      margin: 0;
+    }
+
+    /* PIE DEL PANEL IZQUIERDO */
+    .showcase-footer {
+      padding-top: 22px;
+      border-top: 1px solid rgba(255, 255, 255, 0.14);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 12.5px;
+      color: #cbd5e1;
+    }
+
+    .showcase-metrics {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .showcase-metric-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+
+    .showcase-metric-item i {
+      color: var(--sky-400);
+    }
+
+    /* PANEL DERECHO: ACCESO ADMINISTRATIVO */
     .login-card {
-      padding: 44px 40px;
+      min-height: 100vh;
+      background: #ffffff;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      background: #ffffff;
+      justify-content: space-between;
+      padding: 48px 64px;
+      position: relative;
+      border-left: 1px solid #e2e8f0;
     }
+
+    .login-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--cobalt-600) 0%, var(--sky-400) 100%);
+    }
+
+    .login-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .access-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--cobalt-600);
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 6px 13px;
+      border-radius: 999px;
+    }
+
+    .login-form-wrapper {
+      width: 100%;
+      max-width: 430px;
+      margin: auto;
+      padding: 24px 0;
+    }
+
     .login-logo {
-      width: 52px;
-      height: 52px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #2563eb 0%, #38bdf8 100%);
+      width: 58px;
+      height: 58px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--cobalt-600) 0%, var(--sky-400) 100%);
       color: #ffffff;
-      font-size: 22px;
+      font-size: 24px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 10px 22px rgba(37, 99, 235, 0.35);
+      box-shadow: 0 12px 26px rgba(37, 99, 235, 0.32);
     }
-    .form-control {
-      border-radius: 10px;
-      padding: 10px 14px;
-      border-color: #cbd5e1;
+
+    .login-title {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: var(--navy-900);
+      margin-bottom: 6px;
+    }
+
+    .login-subtitle {
       font-size: 14px;
-    }
-    .form-control:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
-    }
-    .input-group-text {
-      background: #f8fafc;
-      border-color: #cbd5e1;
-      border-radius: 10px 0 0 10px;
-    }
-    .btn-toggle-pass {
-      border-color: #cbd5e1;
-      background: #f8fafc;
       color: #64748b;
-      border-radius: 0 10px 10px 0;
+      line-height: 1.5;
+      margin-bottom: 28px;
     }
-    .btn-cobalt {
-      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-      border: none;
-      color: #ffffff;
-      border-radius: 11px;
-      padding: 11px 16px;
+
+    .form-label {
+      font-size: 13px;
       font-weight: 700;
-      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.32);
+      color: #334155;
+      margin-bottom: 7px;
+    }
+
+    .input-group-lg-custom .input-group-text {
+      background: #f8fafc;
+      border: 1.5px solid #cbd5e1;
+      border-right: none;
+      border-radius: 12px 0 0 12px;
+      padding: 0 15px;
+      color: #64748b;
+    }
+
+    .input-group-lg-custom .form-control {
+      border: 1.5px solid #cbd5e1;
+      border-left: none;
+      border-radius: 0 12px 12px 0;
+      padding: 13px 15px;
+      font-size: 14.5px;
+      font-weight: 500;
+      color: var(--navy-900);
+      background: #f8fafc;
       transition: all 0.2s ease;
     }
+
+    .input-group-lg-custom.has-toggle .form-control {
+      border-right: none;
+      border-radius: 0;
+    }
+
+    .input-group-lg-custom:focus-within .input-group-text,
+    .input-group-lg-custom:focus-within .form-control,
+    .input-group-lg-custom:focus-within .btn-toggle-pass {
+      background: #ffffff;
+      border-color: var(--cobalt-600);
+    }
+
+    .input-group-lg-custom:focus-within {
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+      border-radius: 12px;
+    }
+
+    .form-control:focus {
+      box-shadow: none;
+    }
+
+    .btn-toggle-pass {
+      border: 1.5px solid #cbd5e1;
+      border-left: none;
+      background: #f8fafc;
+      color: #64748b;
+      border-radius: 0 12px 12px 0;
+      padding: 0 15px;
+    }
+
+    .btn-toggle-pass:hover {
+      color: var(--cobalt-600);
+      background: #f1f5f9;
+    }
+
+    .btn-cobalt {
+      background: linear-gradient(135deg, var(--cobalt-600) 0%, var(--cobalt-700) 100%);
+      border: none;
+      color: #ffffff;
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.34);
+      transition: all 0.2s ease;
+    }
+
     .btn-cobalt:hover {
-      background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+      background: linear-gradient(135deg, var(--cobalt-700) 0%, #1e40af 100%);
       color: #ffffff;
       transform: translateY(-1px);
+      box-shadow: 0 14px 28px rgba(37, 99, 235, 0.42);
     }
-    @media (max-width: 768px) {
-      .login-shell { grid-template-columns: 1fr; max-width: 430px; }
-      .login-showcase { display: none; }
-      .login-card { padding: 34px 28px; }
+
+    .gym-quick-info {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 26px;
+    }
+
+    .gym-info-pill {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px 12px;
+      border-radius: 11px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      font-size: 12px;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .gym-info-pill i {
+      color: var(--cobalt-600);
+      font-size: 14px;
+    }
+
+    .login-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-top: 18px;
+      border-top: 1px solid #f1f5f9;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    @media (max-width: 1024px) {
+      .login-shell {
+        grid-template-columns: 1fr;
+      }
+      .login-showcase {
+        min-height: auto;
+        padding: 36px 28px;
+      }
+      .login-card {
+        min-height: auto;
+        padding: 40px 28px;
+      }
+      .gym-modules-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
   <div class="login-shell">
+    <!-- PANEL IZQUIERDO: IDENTIDAD DEPORTIVA DEL GIMNASIO -->
     <section class="login-showcase">
-      <div>
+      <header class="showcase-header">
+        <div class="brand-identity">
+          <div class="brand-emblem">
+            <i class="fa-solid fa-dumbbell"></i>
+          </div>
+          <div>
+            <div class="brand-title">TITAN FITNESS CLUB</div>
+            <span class="brand-subtitle">Centro de Entrenamiento &amp; Alto Rendimiento</span>
+          </div>
+        </div>
+        <div class="status-pill">
+          <span class="status-dot"></span>
+          <span>SEDE LOS OLIVOS · OPERATIVO</span>
+        </div>
+      </header>
+
+      <div class="showcase-body">
         <div class="login-brand-badge">
           <i class="fa-solid fa-bolt text-info"></i>
-          <span>TITAN COBALT PRO · EDICIÓN EJECUTIVA</span>
+          <span>GESTIÓN INTEGRAL DE SOCIOS Y ENTRENAMIENTO</span>
         </div>
-        <h2>Plataforma Integral de Membresías y Rutinas</h2>
-        <p class="text-light opacity-75 small mt-2">
-          Controla vigencias, alertas de 7 días hábiles, renovaciones con historial intacto y programación técnica de entrenamientos.
+        <h2 class="showcase-headline">
+          Control total de <span>membresías, vigencias y rutinas</span> de alto rendimiento.
+        </h2>
+        <p class="showcase-description">
+          Administra el padrón de socios, supervisa alertas de vencimiento oportunas, gestiona renovaciones de planes y realiza el seguimiento personalizado del entrenamiento y cargas en kilogramos de cada atleta.
         </p>
-        <ul class="login-feature-list">
-          <li><i class="fa-solid fa-id-card"></i><span>Catálogo de planes, suscripciones y renovaciones</span></li>
-          <li><i class="fa-solid fa-bell"></i><span>Alertas inteligentes en días hábiles (sin fines de semana)</span></li>
-          <li><i class="fa-solid fa-dumbbell"></i><span>Constructor normalizado de rutinas, días y ejercicios</span></li>
-          <li><i class="fa-solid fa-shield-halved"></i><span>Seguridad Spring Security con hash BCrypt</span></li>
-        </ul>
+
+        <div class="gym-modules-grid">
+          <div class="gym-module-card">
+            <span class="gym-module-icon"><i class="fa-solid fa-id-card"></i></span>
+            <div>
+              <h3>Planes y Membresías</h3>
+              <p>Inscripciones rápidas, activación de planes vigentes y renovación continua de socios.</p>
+            </div>
+          </div>
+          <div class="gym-module-card">
+            <span class="gym-module-icon"><i class="fa-solid fa-bell"></i></span>
+            <div>
+              <h3>Control de Vencimientos</h3>
+              <p>Seguimiento preventivo de membresías próximas a vencer para fidelizar a cada socio.</p>
+            </div>
+          </div>
+          <div class="gym-module-card">
+            <span class="gym-module-icon"><i class="fa-solid fa-dumbbell"></i></span>
+            <div>
+              <h3>Rutinas y Progreso (kg)</h3>
+              <p>Programación semanal por día con registro de ejercicios completados y peso levantado.</p>
+            </div>
+          </div>
+          <div class="gym-module-card">
+            <span class="gym-module-icon"><i class="fa-solid fa-user-check"></i></span>
+            <div>
+              <h3>Ficha Integral del Socio</h3>
+              <p>Consulta inmediata del historial de planes contratados, entrenadores y evolución física.</p>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="small text-light opacity-75 pt-3 border-top border-light border-opacity-25 d-flex justify-content-between">
-        <span>Titan Fitness Club</span>
-        <span>PostgreSQL · Spring Boot 4</span>
-      </div>
+
+      <footer class="showcase-footer">
+        <div class="showcase-metrics">
+          <span class="showcase-metric-item"><i class="fa-solid fa-heart-pulse"></i> Musculación &amp; Cardio</span>
+          <span class="showcase-metric-item"><i class="fa-solid fa-users"></i> Entrenadores de Planta</span>
+          <span class="showcase-metric-item"><i class="fa-solid fa-clock"></i> Lun – Sáb · 6:00 am a 10:00 pm</span>
+        </div>
+        <span>Titan Fitness Club S.A.C. · Lima, Perú</span>
+      </footer>
     </section>
 
+    <!-- PANEL DERECHO: FORMULARIO DE ACCESO DEL GIMNASIO -->
     <main class="login-card">
-      <div class="mb-4">
-        <div class="login-logo mb-3">
-          <i class="fa-solid fa-dumbbell"></i>
-        </div>
-        <h1 class="h4 fw-bold text-dark mb-1">Iniciar sesión</h1>
-        <p class="text-muted small mb-0">Ingrese sus credenciales administrativas para acceder al panel</p>
+      <div class="login-topbar">
+        <span class="access-tag">
+          <i class="fa-solid fa-user-shield"></i> Recepción y Administración
+        </span>
+        <span class="small text-muted fw-semibold">Portal Interno</span>
       </div>
 
-      <form id="loginForm" novalidate>
-        <div class="mb-3">
-          <label for="usuario" class="form-label fw-semibold small text-secondary">Usuario administrativo</label>
-          <div class="input-group">
-            <span class="input-group-text"><i class="fa-solid fa-user text-muted"></i></span>
-            <input type="text" class="form-control" id="usuario" autocomplete="username" placeholder="Ej. admin" required>
+      <div class="login-form-wrapper">
+        <div class="mb-4">
+          <div class="login-logo mb-3">
+            <i class="fa-solid fa-dumbbell"></i>
           </div>
+          <h1 class="login-title">Iniciar sesión</h1>
+          <p class="login-subtitle">
+            Ingresa con tu cuenta de personal autorizado para gestionar socios, membresías y rutinas.
+          </p>
         </div>
-        <div class="mb-3">
-          <label for="clave" class="form-label fw-semibold small text-secondary">Contraseña</label>
-          <div class="input-group">
-            <span class="input-group-text"><i class="fa-solid fa-lock text-muted"></i></span>
-            <input type="password" class="form-control" id="clave" autocomplete="current-password" placeholder="••••••••" required>
-            <button type="button" class="btn btn-toggle-pass" id="btnToggleClave" title="Mostrar u ocultar contraseña">
-              <i class="fa-solid fa-eye"></i>
-            </button>
-          </div>
-        </div>
-        <div id="mensajeError" class="alert alert-danger py-2 small d-none" role="alert">
-          Usuario o contraseña incorrectos.
-        </div>
-        <button type="submit" id="btnIngresar" class="btn btn-cobalt w-100 mt-1">
-          <i class="fa-solid fa-right-to-bracket me-2"></i>Acceder al Panel de Control
-        </button>
-      </form>
 
-      <div class="mt-4 pt-3 border-top text-center">
-        <small class="text-muted">
-          <i class="fa-solid fa-lock me-1 text-primary"></i>
-          Autenticación verificada contra <code>/api/auth/me</code> (BCrypt)
-        </small>
+        <form id="loginForm" novalidate>
+          <div class="mb-3">
+            <label for="usuario" class="form-label">Usuario</label>
+            <div class="input-group input-group-lg-custom">
+              <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+              <input type="text" class="form-control" id="usuario" autocomplete="username" placeholder="Ingresa tu usuario" required>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="clave" class="form-label">Contraseña</label>
+            <div class="input-group input-group-lg-custom has-toggle">
+              <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+              <input type="password" class="form-control" id="clave" autocomplete="current-password" placeholder="••••••••" required>
+              <button type="button" class="btn btn-toggle-pass" id="btnToggleClave" title="Mostrar u ocultar contraseña">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div id="mensajeError" class="alert alert-danger py-2 px-3 small d-none mb-3" role="alert">
+            Usuario o contraseña incorrectos.
+          </div>
+
+          <button type="submit" id="btnIngresar" class="btn btn-cobalt w-100">
+            <i class="fa-solid fa-right-to-bracket me-2"></i>Ingresar al Panel del Gimnasio
+          </button>
+        </form>
+
+        <div class="gym-quick-info">
+          <div class="gym-info-pill">
+            <i class="fa-solid fa-id-badge"></i>
+            <span>Personal Autorizado</span>
+          </div>
+          <div class="gym-info-pill">
+            <i class="fa-solid fa-headset"></i>
+            <span>Soporte de Recepción</span>
+          </div>
+        </div>
       </div>
+
+      <footer class="login-card-footer">
+        <span>
+          <i class="fa-solid fa-location-dot me-1 text-primary"></i>
+          Av. Antúnez de Mayolo 1248 · Los Olivos
+        </span>
+        <span>Titan Fitness Club</span>
+      </footer>
     </main>
   </div>
 
@@ -302,7 +715,7 @@
         }
         error.classList.remove("d-none");
       } catch (err) {
-        error.textContent = "No se pudo conectar con el servidor backend (http://localhost:8080).";
+        error.textContent = "No se pudo conectar con el servidor del sistema.";
         error.classList.remove("d-none");
       } finally {
         btn.disabled = false;
